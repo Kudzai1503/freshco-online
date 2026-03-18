@@ -2,7 +2,7 @@ import type { Product } from "@/lib/storefront/types";
 
 import { StoreProductCard } from "@/components/storefront/shared/ProductCard";
 
-export function ProductGrid({ products }: { products: Product[] }) {
+export function ProductGrid({ products }: Readonly<{ products: Product[] }>) {
   if (products.length === 0) {
     return (
       <div className="rounded-[30px] border border-[var(--freshco-border)] bg-[var(--freshco-surface-soft)] p-8">

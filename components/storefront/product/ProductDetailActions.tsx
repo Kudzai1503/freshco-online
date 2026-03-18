@@ -8,7 +8,7 @@ import type { Product } from "@/lib/storefront/types";
 import { AgeRestrictedNotice } from "@/components/storefront/shared/AgeRestrictedNotice";
 import { StockBadge } from "@/components/storefront/shared/StockBadge";
 
-export function ProductDetailActions({ product }: { product: Product }) {
+export function ProductDetailActions({ product }: Readonly<{ product: Product }>) {
   const { setCartItem, cart, stockSnapshot } = useStorefrontSession();
   const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);

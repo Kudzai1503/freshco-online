@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { useStorefrontSession } from "@/lib/storefront/browser-session";
 
-export function OrderConfirmationClient({ orderId }: { orderId?: string }) {
+export function OrderConfirmationClient({ orderId }: Readonly<{ orderId?: string }>) {
   const { loaded, orders } = useStorefrontSession();
 
   if (!loaded) {

@@ -1,11 +1,11 @@
 import { homeDesignSystem } from "@/components/home/design-system";
 
-type SectionHeadingProps = {
+type SectionHeadingProps = Readonly<{
   eyebrow: string;
   title: string;
   copy: string;
   light?: boolean;
-};
+}>;
 
 export function SectionHeading({
   eyebrow,

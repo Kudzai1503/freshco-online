@@ -1,6 +1,6 @@
 import { AssetImage } from "@/components/home/shared/AssetImage";
 
-function ArrowButton({ dark = false }: { dark?: boolean }) {
+function ArrowButton({ dark = false }: Readonly<{ dark?: boolean }>) {
   return (
     <button
       aria-label="Explore more"

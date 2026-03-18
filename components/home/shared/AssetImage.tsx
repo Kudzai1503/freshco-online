@@ -18,16 +18,16 @@ export function AssetImage({
   wrapperClassName,
   fallbackClassName,
   ...props
-}: AssetImageProps) {
+}: Readonly<AssetImageProps>) {
   const [hasError, setHasError] = useState(false);
   const hasSrc = typeof props.src === "string" ? props.src.trim().length > 0 : Boolean(props.src);
 
   return (
     <div className={wrapperClassName}>
       {!hasSrc || hasError ? (
-        <div aria-label={alt} className={fallbackClassName} role="img">
-          <span className="max-w-[10ch] text-center leading-tight">{fallbackLabel}</span>
-        </div>
+        <figure aria-label={alt} className={fallbackClassName}>
+          <figcaption className="max-w-[10ch] text-center leading-tight">{fallbackLabel}</figcaption>
+        </figure>
       ) : (
         <Image
           {...props}

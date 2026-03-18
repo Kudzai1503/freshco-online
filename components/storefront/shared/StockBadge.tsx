@@ -12,7 +12,10 @@ const badgeLabels: Record<StockState, string> = {
   out_of_stock: "Out of stock",
 };
 
-export function StockBadge({ stockState, quantity }: { stockState: StockState; quantity: number }) {
+export function StockBadge({
+  stockState,
+  quantity,
+}: Readonly<{ stockState: StockState; quantity: number }>) {
   return (
     <span
       className={`inline-flex rounded-full px-3 py-1.5 text-[0.72rem] font-extrabold uppercase tracking-[0.12em] ${badgeStyles[stockState]}`}
@@ -22,4 +25,3 @@ export function StockBadge({ stockState, quantity }: { stockState: StockState; q
     </span>
   );
 }
-

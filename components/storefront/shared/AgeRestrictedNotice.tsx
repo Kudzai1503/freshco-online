@@ -1,4 +1,4 @@
-export function AgeRestrictedNotice({ compact = false }: { compact?: boolean }) {
+export function AgeRestrictedNotice({ compact = false }: Readonly<{ compact?: boolean }>) {
   return (
     <div
       className={`rounded-[20px] border border-[#A66A00]/18 bg-[#FFF6D8] text-[#6E4C05] ${
@@ -12,4 +12,3 @@ export function AgeRestrictedNotice({ compact = false }: { compact?: boolean }) 
     </div>
   );
 }
-

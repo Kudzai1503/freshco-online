@@ -6,7 +6,7 @@ import { AddToCartButton } from "@/components/storefront/shared/AddToCartButton"
 import { AgeRestrictedNotice } from "@/components/storefront/shared/AgeRestrictedNotice";
 import { ProductImage } from "@/components/storefront/shared/ProductImage";
 
-export function StoreProductCard({ product }: { product: Product }) {
+export function StoreProductCard({ product }: Readonly<{ product: Product }>) {
   return (
     <article className="group overflow-hidden rounded-[26px] border border-[var(--freshco-border)] bg-white p-3 transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(23,53,52,0.08)] sm:p-4">
       <Link href={`/shop/${product.slug}`}>
