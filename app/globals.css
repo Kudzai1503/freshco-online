@@ -3,24 +3,36 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --freshco-page: #ffffff;
+  --freshco-text: #173534;
+  --freshco-text-soft: #355654;
+  --freshco-brand: #67be63;
+  --freshco-brand-dark: #3f9853;
+  --freshco-surface-soft: #f8fcf7;
+  --freshco-surface-soft-alt: #f9fcf8;
+  --freshco-surface-soft-strong: #f4fbf3;
+  --freshco-surface-tint: #e7f5eb;
+  --freshco-border: rgba(23, 53, 52, 0.1);
+  --freshco-shadow-soft: 0 18px 60px rgba(23, 53, 52, 0.08);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-manrope);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  background: var(--freshco-page);
+  color: var(--freshco-text);
+  font-family: var(--font-manrope), sans-serif;
 }

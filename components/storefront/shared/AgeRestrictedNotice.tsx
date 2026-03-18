@@ -1,0 +1,15 @@
+export function AgeRestrictedNotice({ compact = false }: { compact?: boolean }) {
+  return (
+    <div
+      className={`rounded-[20px] border border-[#A66A00]/18 bg-[#FFF6D8] text-[#6E4C05] ${
+        compact ? "px-3 py-2 text-[0.8rem]" : "px-4 py-3 text-[0.92rem]"
+      }`}
+    >
+      <span className="font-extrabold uppercase tracking-[0.12em]">18+ Placeholder</span>
+      <span className="ml-2">
+        Winery items are shown with a visual age notice only in this mock storefront.
+      </span>
+    </div>
+  );
+}
+
