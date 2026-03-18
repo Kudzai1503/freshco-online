@@ -42,8 +42,14 @@ export function OrdersClient() {
               <p className="mt-2 text-[0.98rem] text-[var(--freshco-text-soft)]">
                 {new Date(order.createdAt).toLocaleString()}
               </p>
+              <p className="mt-2 text-[0.92rem] text-[var(--freshco-text-soft)]">
+                {order.fulfillmentLabel} · {order.etaLabel}
+              </p>
             </div>
             <div className="text-right">
+              <p className="inline-flex rounded-full bg-[var(--freshco-surface-soft)] px-3 py-1.5 text-[0.72rem] font-extrabold uppercase tracking-[0.12em] text-[var(--freshco-brand-dark)]">
+                {order.trackingTimeline.find((event) => event.status === order.status)?.label ?? "Confirmed"}
+              </p>
               <p className="text-[0.78rem] font-extrabold uppercase tracking-[0.16em] text-[var(--freshco-text-soft)]">
                 Total
               </p>
@@ -59,9 +65,24 @@ export function OrdersClient() {
               </li>
             ))}
           </ul>
+          <ol className="mt-5 grid gap-3 border-t border-[var(--freshco-border)] pt-4">
+            {order.trackingTimeline.map((event) => (
+              <li className="flex gap-3" key={`${order.id}-${event.status}`}>
+                <span
+                  aria-hidden="true"
+                  className={`mt-1 h-3 w-3 shrink-0 rounded-full ${
+                    event.completed ? "bg-[var(--freshco-brand)]" : "bg-[#D7E7D5]"
+                  }`}
+                />
+                <div>
+                  <p className="text-[0.94rem] font-bold text-[var(--freshco-text)]">{event.label}</p>
+                  <p className="mt-1 text-[0.88rem] text-[var(--freshco-text-soft)]">{event.description}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </article>
       ))}
     </div>
   );
 }
-

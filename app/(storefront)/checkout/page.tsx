@@ -1,6 +1,9 @@
+import { requireAuth } from "@/lib/auth/guards";
 import { CheckoutClient } from "@/components/storefront/checkout/CheckoutClient";
 
-export default function CheckoutPage() {
+export default async function CheckoutPage() {
+  await requireAuth("/checkout");
+
   return (
     <main className="bg-white px-4 py-8 sm:px-6 lg:px-8 xl:px-10 2xl:px-14">
       <section className="mb-6 rounded-[38px] border border-[var(--freshco-border)] bg-[var(--freshco-surface-soft)] px-5 py-8 sm:px-7 lg:px-10">
@@ -15,4 +18,3 @@ export default function CheckoutPage() {
     </main>
   );
 }
-

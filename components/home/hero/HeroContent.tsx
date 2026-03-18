@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { auth } from "@/auth";
 import { heroFruits, quickPicks } from "@/components/home/data/content";
 import { AssetImage } from "@/components/home/shared/AssetImage";
 
@@ -17,7 +18,9 @@ function ArrowIcon() {
   );
 }
 
-export function HeroContent() {
+export async function HeroContent() {
+  const session = await auth();
+
   return (
     <section className="relative flex min-h-[560px] flex-col justify-center overflow-hidden py-10 lg:min-h-[640px] lg:py-12 2xl:min-h-[700px]">
       <div className="relative z-10 max-w-[980px]">
@@ -47,15 +50,25 @@ export function HeroContent() {
 
       <div className="relative z-10 mt-10 grid gap-6 xl:grid-cols-[360px_1fr] xl:items-end xl:justify-between">
         <div className="flex flex-col gap-5">
-          <Link
-            className="group inline-flex h-14 items-center justify-center gap-3 self-start rounded-full bg-[#173534] px-7 text-[0.9rem] font-extrabold tracking-[0.16em] text-white transition duration-200 hover:-translate-y-0.5 hover:brightness-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67BE63] focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:h-[58px] sm:px-8"
-            href="/shop"
-          >
-            <span>SHOP NOW</span>
-            <span className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <ArrowIcon />
-            </span>
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              className="group inline-flex h-14 items-center justify-center gap-3 self-start rounded-full bg-[#173534] px-7 text-[0.9rem] font-extrabold tracking-[0.16em] text-white transition duration-200 hover:-translate-y-0.5 hover:brightness-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67BE63] focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:h-[58px] sm:px-8"
+              href="/shop"
+            >
+              <span>SHOP NOW</span>
+              <span className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <ArrowIcon />
+              </span>
+            </Link>
+            {!session?.user ? (
+              <Link
+                className="inline-flex h-14 items-center justify-center self-start rounded-full border border-[#173534]/12 bg-white px-6 text-[0.86rem] font-extrabold tracking-[0.14em] text-[#173534] transition duration-200 hover:-translate-y-0.5 hover:bg-[#F7FBF4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67BE63] focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:h-[58px]"
+                href="/sign-in?callbackUrl=%2Faccount"
+              >
+                SIGN IN / SIGN UP
+              </Link>
+            ) : null}
+          </div>
           <div className="flex flex-wrap gap-2.5">
             {quickPicks.map((item) => (
               <span

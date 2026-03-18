@@ -1,4 +1,4 @@
-import { mockStorefrontClient } from "@/lib/storefront/mock/mock-storefront-client";
+import { mockStorefrontClient } from "@/lib/storefront/mock-client";
 import type { DepartmentSlug, ProductQuery, SortOption, StockState } from "@/lib/storefront/types";
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
@@ -49,4 +49,3 @@ export async function getProductPageData(slug: string) {
     relatedProducts,
   };
 }
-

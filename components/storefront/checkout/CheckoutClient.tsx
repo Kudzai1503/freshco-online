@@ -3,6 +3,10 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import {
+  fulfillmentOptions,
+  pickupLocationLabel,
+} from "@/lib/storefront/mock/data";
 import { useStorefrontSession } from "@/lib/storefront/browser-session";
 import { AgeRestrictedNotice } from "@/components/storefront/shared/AgeRestrictedNotice";
 import { StockBadge } from "@/components/storefront/shared/StockBadge";
@@ -13,6 +17,13 @@ export function CheckoutClient() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const selectedFulfillment = useMemo(
+    () =>
+      fulfillmentOptions.find((option) => option.method === checkoutDraft.fulfillmentMethod) ??
+      fulfillmentOptions[0],
+    [checkoutDraft.fulfillmentMethod],
+  );
+  const requiresDeliveryAddress = checkoutDraft.fulfillmentMethod !== "pickup";
 
   const canContinue = useMemo(() => {
     if (step === 1) {
@@ -21,13 +32,13 @@ export function CheckoutClient() {
           checkoutDraft.firstName &&
           checkoutDraft.lastName &&
           checkoutDraft.phone &&
-          checkoutDraft.addressLine1 &&
-          checkoutDraft.city,
+          (!requiresDeliveryAddress ||
+            (checkoutDraft.addressLine1 && checkoutDraft.city)),
       );
     }
 
     return preview.items.length > 0;
-  }, [checkoutDraft, preview.items.length, step]);
+  }, [checkoutDraft, preview.items.length, requiresDeliveryAddress, step]);
 
   if (!loaded) {
     return <p className="text-[var(--freshco-text-soft)]">Loading checkout…</p>;
@@ -71,11 +82,63 @@ export function CheckoutClient() {
               city: (form.elements.namedItem("city") as HTMLInputElement)?.value ?? "",
               deliveryNotes: (form.elements.namedItem("deliveryNotes") as HTMLTextAreaElement)?.value ?? "",
               paymentMethod: (form.elements.namedItem("paymentMethod") as HTMLSelectElement)?.value === "cash" ? "cash" : "card",
+              fulfillmentMethod:
+                ((form.elements.namedItem("fulfillmentMethod") as RadioNodeList)?.value as
+                  | "standard_delivery"
+                  | "express_delivery"
+                  | "pickup") || "standard_delivery",
+              pickupLocation: pickupLocationLabel,
             });
           }}
         >
           {step === 1 ? (
             <>
+              <div>
+                <p className="text-[0.78rem] font-extrabold uppercase tracking-[0.16em] text-[var(--freshco-text-soft)]">
+                  Fulfillment
+                </p>
+                <div className="mt-3 grid gap-3">
+                  {fulfillmentOptions.map((option) => {
+                    const selected = checkoutDraft.fulfillmentMethod === option.method;
+                    return (
+                      <label
+                        key={option.method}
+                        className={`flex cursor-pointer items-start gap-3 rounded-[22px] border p-4 transition ${
+                          selected
+                            ? "border-[var(--freshco-brand)] bg-[#F4FBF3]"
+                            : "border-[var(--freshco-border)] bg-[var(--freshco-surface-soft)]"
+                        }`}
+                      >
+                        <input
+                          checked={selected}
+                          className="mt-1 h-4 w-4 accent-[var(--freshco-brand)]"
+                          name="fulfillmentMethod"
+                          type="radio"
+                          value={option.method}
+                          readOnly
+                        />
+                        <div>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="text-[1rem] font-extrabold text-[var(--freshco-text)]">
+                              {option.label}
+                            </span>
+                            <span className="text-[0.84rem] font-bold text-[var(--freshco-brand-dark)]">
+                              {option.fee > 0 ? `$${option.fee.toFixed(2)}` : "Free"}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[0.92rem] text-[var(--freshco-text-soft)]">
+                            {option.description}
+                          </p>
+                          <p className="mt-2 text-[0.8rem] font-bold uppercase tracking-[0.12em] text-[var(--freshco-text-soft)]">
+                            {option.etaLabel}
+                          </p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <input className="h-12 rounded-[18px] border border-[var(--freshco-border)] px-4" defaultValue={checkoutDraft.firstName} name="firstName" placeholder="First name" />
                 <input className="h-12 rounded-[18px] border border-[var(--freshco-border)] px-4" defaultValue={checkoutDraft.lastName} name="lastName" placeholder="Last name" />
@@ -84,9 +147,17 @@ export function CheckoutClient() {
                 <input className="h-12 rounded-[18px] border border-[var(--freshco-border)] px-4" defaultValue={checkoutDraft.email} name="email" placeholder="Email" type="email" />
                 <input className="h-12 rounded-[18px] border border-[var(--freshco-border)] px-4" defaultValue={checkoutDraft.phone} name="phone" placeholder="Phone" />
               </div>
-              <input className="h-12 rounded-[18px] border border-[var(--freshco-border)] px-4" defaultValue={checkoutDraft.addressLine1} name="addressLine1" placeholder="Address line 1" />
-              <input className="h-12 rounded-[18px] border border-[var(--freshco-border)] px-4" defaultValue={checkoutDraft.addressLine2} name="addressLine2" placeholder="Address line 2" />
-              <input className="h-12 rounded-[18px] border border-[var(--freshco-border)] px-4" defaultValue={checkoutDraft.city} name="city" placeholder="City" />
+              {requiresDeliveryAddress ? (
+                <>
+                  <input className="h-12 rounded-[18px] border border-[var(--freshco-border)] px-4" defaultValue={checkoutDraft.addressLine1} name="addressLine1" placeholder="Address line 1" />
+                  <input className="h-12 rounded-[18px] border border-[var(--freshco-border)] px-4" defaultValue={checkoutDraft.addressLine2} name="addressLine2" placeholder="Address line 2" />
+                  <input className="h-12 rounded-[18px] border border-[var(--freshco-border)] px-4" defaultValue={checkoutDraft.city} name="city" placeholder="City" />
+                </>
+              ) : (
+                <div className="rounded-[22px] bg-[var(--freshco-surface-soft)] p-5 text-[var(--freshco-text-soft)]">
+                  Pickup location: <strong className="text-[var(--freshco-text)]">{pickupLocationLabel}</strong>
+                </div>
+              )}
               <textarea className="min-h-[120px] rounded-[18px] border border-[var(--freshco-border)] px-4 py-3" defaultValue={checkoutDraft.deliveryNotes} name="deliveryNotes" placeholder="Delivery notes" />
             </>
           ) : null}
@@ -99,6 +170,10 @@ export function CheckoutClient() {
               </select>
               <div className="rounded-[22px] bg-[var(--freshco-surface-soft)] p-5 text-[var(--freshco-text-soft)]">
                 Payment is a demo placeholder only. No real gateway or transaction is processed in this phase.
+              </div>
+              <div className="rounded-[22px] bg-[var(--freshco-surface-soft)] p-5 text-[var(--freshco-text-soft)]">
+                Fulfillment: <strong className="text-[var(--freshco-text)]">{selectedFulfillment.label}</strong>
+                <p className="mt-2">{selectedFulfillment.etaLabel}</p>
               </div>
             </>
           ) : null}
@@ -115,6 +190,14 @@ export function CheckoutClient() {
                   </li>
                 ))}
               </ul>
+              <div className="mt-4 rounded-[18px] bg-white p-4">
+                <p className="text-[0.82rem] font-bold uppercase tracking-[0.14em] text-[var(--freshco-text-soft)]">
+                  {preview.fulfillmentLabel}
+                </p>
+                <p className="mt-2 text-[0.98rem] text-[var(--freshco-text)]">
+                  {preview.etaLabel}
+                </p>
+              </div>
             </div>
           ) : null}
         </form>
@@ -191,6 +274,10 @@ export function CheckoutClient() {
         </ul>
         <div className="mt-5 space-y-3 border-t border-[var(--freshco-border)] pt-4 text-[0.98rem] text-[var(--freshco-text-soft)]">
           <div className="flex items-center justify-between">
+            <span>Fulfillment</span>
+            <strong className="text-[var(--freshco-text)]">{preview.fulfillmentLabel}</strong>
+          </div>
+          <div className="flex items-center justify-between">
             <span>Subtotal</span>
             <strong className="text-[var(--freshco-text)]">${preview.subtotal.toFixed(2)}</strong>
           </div>
@@ -203,6 +290,7 @@ export function CheckoutClient() {
             <strong className="text-[var(--freshco-text)]">${preview.total.toFixed(2)}</strong>
           </div>
         </div>
+        <p className="mt-4 text-[0.9rem] text-[var(--freshco-text-soft)]">{preview.etaLabel}</p>
       </aside>
     </div>
   );

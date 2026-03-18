@@ -36,6 +36,33 @@ export function OrderConfirmationClient({ orderId }: Readonly<{ orderId?: string
         <p className="mt-4 text-[0.98rem] text-[var(--freshco-text-soft)]">
           Total: <strong className="text-[var(--freshco-text)]">${order.total.toFixed(2)}</strong>
         </p>
+        <p className="mt-3 text-[0.98rem] text-[var(--freshco-text-soft)]">
+          Fulfillment: <strong className="text-[var(--freshco-text)]">{order.fulfillmentLabel}</strong>
+        </p>
+        <p className="mt-2 text-[0.98rem] text-[var(--freshco-text-soft)]">
+          ETA: <strong className="text-[var(--freshco-text)]">{order.etaLabel}</strong>
+        </p>
+      </div>
+      <div className="mt-6 rounded-[24px] bg-white p-5">
+        <p className="text-[0.82rem] font-bold uppercase tracking-[0.14em] text-[var(--freshco-text-soft)]">
+          Tracking
+        </p>
+        <ol className="mt-4 grid gap-4">
+          {order.trackingTimeline.map((event) => (
+            <li className="flex gap-3" key={`${order.id}-${event.status}`}>
+              <span
+                aria-hidden="true"
+                className={`mt-1 h-3 w-3 shrink-0 rounded-full ${
+                  event.completed ? "bg-[var(--freshco-brand)]" : "bg-[#D7E7D5]"
+                }`}
+              />
+              <div>
+                <p className="text-[0.98rem] font-bold text-[var(--freshco-text)]">{event.label}</p>
+                <p className="mt-1 text-[0.92rem] text-[var(--freshco-text-soft)]">{event.description}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
       <div className="mt-6 flex flex-wrap gap-3">
         <Link className="inline-flex h-12 items-center justify-center rounded-full bg-[var(--freshco-brand)] px-5 text-[0.82rem] font-extrabold uppercase tracking-[0.14em] text-white" href="/account/orders">

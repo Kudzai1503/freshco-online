@@ -1,6 +1,9 @@
+import { requireAuth } from "@/lib/auth/guards";
 import { ProfileClient } from "@/components/storefront/account/ProfileClient";
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  await requireAuth("/account/profile");
+
   return (
     <main className="bg-white px-4 py-8 sm:px-6 lg:px-8 xl:px-10 2xl:px-14">
       <section className="mb-6 rounded-[38px] border border-[var(--freshco-border)] bg-[var(--freshco-surface-soft)] px-5 py-8 sm:px-7 lg:px-10">
@@ -8,11 +11,10 @@ export default function ProfilePage() {
           Profile
         </p>
         <h1 className="mt-3 text-[2.8rem] font-extrabold leading-[0.94] tracking-[-0.06em] text-[var(--freshco-text)]">
-          Manage the mock shopper profile used across checkout and orders.
+          Manage your shopper profile details.
         </h1>
       </section>
       <ProfileClient />
     </main>
   );
 }
-
