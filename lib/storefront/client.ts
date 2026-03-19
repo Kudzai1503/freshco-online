@@ -1,30 +1,45 @@
 import type {
   Cart,
+  Category,
   CheckoutDraft,
   CheckoutPreview,
   CustomerProfile,
   Department,
   Order,
   Product,
-  ProductQuery,
   ProductSearchResult,
+  ReorderResult,
+  SearchFilters,
 } from "@/lib/storefront/types";
 
 export interface StorefrontClient {
-  getDepartments(): Promise<Department[]>;
-  getProducts(params?: ProductQuery): Promise<ProductSearchResult>;
+  // Integration note: this interface is the swap point for the future Spring Boot commerce API.
+  // Presentation and route-level query helpers should continue to depend on this contract rather
+  // than importing mock storage or mock-data modules directly.
+  getCategories(): Promise<Category[]>;
+  getFeaturedProducts(): Promise<Product[]>;
+  searchProducts(filters?: SearchFilters): Promise<ProductSearchResult>;
   getProductBySlug(slug: string): Promise<Product | null>;
-  searchProducts(query: string, params?: ProductQuery): Promise<ProductSearchResult>;
   getRelatedProducts(productId: string): Promise<Product[]>;
   getCart(): Promise<Cart>;
-  setCartItem(productId: string, quantity: number): Promise<Cart>;
+  addToCart(productId: string, quantity?: number): Promise<Cart>;
+  updateCartItemQty(productId: string, quantity: number): Promise<Cart>;
   removeCartItem(productId: string): Promise<Cart>;
+  clearCart(): Promise<Cart>;
   getCheckoutDraft(): Promise<CheckoutDraft>;
   saveCheckoutDraft(draft: CheckoutDraft): Promise<CheckoutDraft>;
   getCheckoutPreview(): Promise<CheckoutPreview>;
   placeMockOrder(): Promise<Order>;
+  getOrders(): Promise<Order[]>;
+  getOrderById(orderId: string): Promise<Order | null>;
+  reorderOrder(orderId: string): Promise<ReorderResult>;
+  getMockProfile(): Promise<CustomerProfile>;
+  saveMockProfile(profile: CustomerProfile): Promise<CustomerProfile>;
+
+  // Compatibility methods for the current app during migration.
+  getDepartments(): Promise<Department[]>;
+  getProducts(params?: SearchFilters): Promise<ProductSearchResult>;
+  setCartItem(productId: string, quantity: number): Promise<Cart>;
   getCustomerProfile(): Promise<CustomerProfile>;
   saveCustomerProfile(profile: CustomerProfile): Promise<CustomerProfile>;
-  getOrders(): Promise<Order[]>;
 }
-

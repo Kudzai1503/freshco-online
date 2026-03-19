@@ -34,6 +34,7 @@ export type PromoCardData = {
   title: string;
   copy: string;
   cta: string;
+  href: string;
   surfaceClassName: string;
   src: string;
   fallbackLabel: string;
@@ -48,8 +49,8 @@ export const navItems: NavItem[] = [
   { label: "ABOUT", href: "#about" },
   { label: "SHOP", href: "/shop", hasChevron: true },
   { label: "PRODUCE", href: "/shop?department=fruits", hasChevron: true },
-  { label: "OFFERS", href: "#offers" },
-  { label: "BLOG", href: "#stories" },
+  { label: "FEATURED", href: "#featured" },
+  { label: "STORY", href: "#stories" },
 ];
 
 export const quickPicks = [
@@ -61,42 +62,42 @@ export const quickPicks = [
 
 export const heroFruits: FruitAsset[] = [
   {
-    src: "",
+    src: "/assets/bananas.png",
     alt: "Fresh strawberry",
     fallbackLabel: "Berry",
     className:
       "left-[0%] top-[11%] h-[80px] w-[80px] -rotate-[14deg] md:h-[96px] md:w-[96px] 2xl:h-[118px] 2xl:w-[118px]",
   },
   {
-    src: "",
+    src: "/assets/heack.png",
     alt: "Sliced strawberry",
     fallbackLabel: "Berry",
     className:
       "left-[40%] top-[20%] h-[56px] w-[56px] rotate-[18deg] md:h-[72px] md:w-[72px] 2xl:h-[84px] 2xl:w-[84px]",
   },
   {
-    src: "",
+    src: "/assets/bread.png",
     alt: "Banana bunch",
     fallbackLabel: "Banana",
     className:
       "right-[2%] top-[0%] h-[124px] w-[124px] rotate-[8deg] md:h-[158px] md:w-[158px] 2xl:h-[192px] 2xl:w-[192px]",
   },
   {
-    src: "",
+    src: "/assets/bananas.png",
     alt: "Orange slices",
     fallbackLabel: "Orange",
     className:
       "bottom-[24%] left-[5%] h-[74px] w-[74px] -rotate-[12deg] md:h-[92px] md:w-[92px] 2xl:h-[112px] 2xl:w-[112px]",
   },
   {
-    src: "",
+    src: "/assets/bananas.png",
     alt: "Kiwi slices",
     fallbackLabel: "Kiwi",
     className:
       "bottom-[19%] right-[18%] h-[72px] w-[72px] rotate-[12deg] md:h-[92px] md:w-[92px] 2xl:h-[108px] 2xl:w-[108px]",
   },
   {
-    src: "",
+    src: "/assets/bananas.png",
     alt: "Green grapes",
     fallbackLabel: "Grapes",
     className:
@@ -119,13 +120,13 @@ export const categories: CategoryItem[] = [
   },
   {
     title: "Pantry Staples",
-    subtitle: "Healthy basics curated for quick family meals.",
+    subtitle: "Kitchen basics for breakfast, lunch, dinner, and quick top-up shops.",
     surfaceClassName: "bg-[#F1F8E8]",
-    href: "#offers",
+    href: "/shop?department=groceries",
   },
   {
     title: "Fresh Deals",
-    subtitle: "Daily bundles and same-day neighborhood delivery.",
+    subtitle: "Fast-moving favorites for the week ahead.",
     surfaceClassName: "bg-[#EAF7F0]",
     href: "#trending",
   },
@@ -138,7 +139,7 @@ export const featuredProducts: ProductCardData[] = [
     price: "$12.90",
     rating: "4.9",
     badge: "Best Seller",
-    src: "",
+    src: "/assets/bananas.png",
     fallbackLabel: "Greens",
     bgClassName: "bg-[#F2F8EE]",
   },
@@ -148,7 +149,7 @@ export const featuredProducts: ProductCardData[] = [
     price: "$18.40",
     rating: "4.8",
     badge: "Fresh Pick",
-    src: "",
+    src: "/assets/bananas.png",
     fallbackLabel: "Citrus",
     bgClassName: "bg-[#F4FBEE]",
   },
@@ -157,7 +158,7 @@ export const featuredProducts: ProductCardData[] = [
     category: "Healthy Fats",
     price: "$9.50",
     rating: "4.7",
-    src: "",
+    src: "/assets/heack.png",
     fallbackLabel: "Avocado",
     bgClassName: "bg-[#E6F1DA]",
   },
@@ -166,7 +167,7 @@ export const featuredProducts: ProductCardData[] = [
     category: "Ready Basket",
     price: "$15.90",
     rating: "4.9",
-    src: "",
+    src: "/assets/bread.png",
     fallbackLabel: "Berries",
     bgClassName: "bg-[#EDF6E6]",
   },
@@ -178,7 +179,7 @@ export const trendingProducts: ProductCardData[] = [
     category: "Greens",
     price: "$6.90",
     rating: "4.6",
-    src: "",
+    src: "/assets/bananas.png",
     fallbackLabel: "Spinach",
     bgClassName: "bg-[#EEF6E3]",
   },
@@ -187,7 +188,7 @@ export const trendingProducts: ProductCardData[] = [
     category: "Tropical",
     price: "$8.30",
     rating: "4.8",
-    src: "",
+    src: "/assets/bananas.png",
     fallbackLabel: "Mango",
     bgClassName: "bg-[#F0F8DE]",
   },
@@ -196,7 +197,7 @@ export const trendingProducts: ProductCardData[] = [
     category: "Veggie Pack",
     price: "$11.20",
     rating: "4.7",
-    src: "",
+    src: "/assets/heack.png",
     fallbackLabel: "Peppers",
     bgClassName: "bg-[#EAF7EC]",
   },
@@ -205,7 +206,7 @@ export const trendingProducts: ProductCardData[] = [
     category: "Fruit Slice",
     price: "$13.10",
     rating: "4.9",
-    src: "",
+    src: "/assets/bread.png",
     fallbackLabel: "Melon",
     bgClassName: "bg-[#F3FBEF]",
   },
@@ -214,20 +215,22 @@ export const trendingProducts: ProductCardData[] = [
 export const promoCards: PromoCardData[] = [
   {
     eyebrow: "LIMITED OFFER",
-    title: "Fresh organic picks for the week ahead",
-    copy: "Handpicked bundles with weekly essentials, colorful fruits, and pantry favorites.",
-    cta: "Build a box",
+    title: "Fresh picks for the week ahead",
+    copy: "Fill your basket with fruit, greens, pantry basics, and easy family staples.",
+    cta: "Shop produce",
+    href: "/shop?department=fruits",
     surfaceClassName: "bg-[#F3FAF1]",
-    src: "",
+    src: "/assets/bread.png",
     fallbackLabel: "Weekly box",
   },
   {
     eyebrow: "FAST DELIVERY",
     title: "Shop neighborhood produce with same-day ease",
-    copy: "A smoother grocery routine with curated categories, meal-friendly staples, and direct checkout.",
-    cta: "Explore offers",
+    copy: "Move from fresh produce to pantry essentials with clear departments and direct checkout.",
+    cta: "Explore departments",
+    href: "#categories",
     surfaceClassName: "bg-[#EEF9F4]",
-    src: "",
+    src: "/assets/heack.png",
     fallbackLabel: "Delivery",
   },
 ];
@@ -237,24 +240,24 @@ export const footerGroups: FooterLinkGroup[] = [
     heading: "Company",
     links: [
       { label: "About FreshCo", href: "/#about" },
-      { label: "Our Values", href: "/#stories" },
-      { label: "Careers", href: "/#footer" },
+      { label: "Our Story", href: "/#stories" },
+      { label: "Fresh Picks", href: "/#featured" },
     ],
   },
   {
     heading: "Shop",
     links: [
-      { label: "Fresh Produce", href: "/#featured" },
-      { label: "Best Sellers", href: "/#best-sellers" },
-      { label: "Trending", href: "/#trending" },
+      { label: "Shop all", href: "/shop" },
+      { label: "Deli", href: "/shop?department=deli" },
+      { label: "Butchery", href: "/shop?department=butchery" },
     ],
   },
   {
     heading: "Support",
     links: [
-      { label: "Delivery Info", href: "/#offers" },
-      { label: "FAQs", href: "/#footer" },
-      { label: "Contact Us", href: "/#footer" },
+      { label: "Delivery Info", href: "/shop" },
+      { label: "Your Cart", href: "/cart" },
+      { label: "Order Tracking", href: "/account/orders" },
     ],
   },
 ];

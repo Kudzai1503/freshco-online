@@ -23,7 +23,7 @@ export function PromoSection() {
               <p className="mt-4 text-[1rem] leading-7 text-[#355654]">{promo.copy}</p>
               <Link
                 className="mt-6 inline-flex items-center gap-3 rounded-full bg-white px-5 py-3 text-[0.82rem] font-extrabold uppercase tracking-[0.14em] text-[#173534] transition duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67BE63] focus-visible:ring-offset-2"
-                href="#featured"
+                href={promo.href}
               >
                 {promo.cta}
                 <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 20 20">

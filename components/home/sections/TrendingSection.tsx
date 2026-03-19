@@ -7,7 +7,7 @@ export function TrendingSection() {
     <section className="bg-white px-4 py-7 sm:px-6 lg:px-8 xl:px-10 2xl:px-14" id="trending">
       <div className="rounded-[38px] border border-[#173534]/10 bg-[#F7FBF6] px-5 py-8 sm:px-7 lg:px-10 lg:py-10">
         <SectionHeading
-          copy="These compact cards keep the lower half of the page active and commercial without collapsing into generic marketplace clutter."
+          copy="Stock up on fruit, salad greens, and colorful staples that keep weeknight meals moving."
           eyebrow="TRENDING PRODUCTS"
           title="Stock up on colorful everyday essentials."
         />

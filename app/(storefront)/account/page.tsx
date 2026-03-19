@@ -1,6 +1,9 @@
+import { requireAuth } from "@/lib/auth/guards";
 import { AccountOverviewClient } from "@/components/storefront/account/AccountOverviewClient";
 
-export default function AccountPage() {
+export default async function AccountPage() {
+  const session = await requireAuth("/account");
+
   return (
     <main className="bg-white px-4 py-8 sm:px-6 lg:px-8 xl:px-10 2xl:px-14">
       <section className="mb-6 rounded-[38px] border border-[var(--freshco-border)] bg-[var(--freshco-surface-soft)] px-5 py-8 sm:px-7 lg:px-10">
@@ -8,11 +11,10 @@ export default function AccountPage() {
           Account
         </p>
         <h1 className="mt-3 text-[2.8rem] font-extrabold leading-[0.94] tracking-[-0.06em] text-[var(--freshco-text)]">
-          Demo shopper account overview.
+          Your FreshCo shopper account.
         </h1>
       </section>
-      <AccountOverviewClient />
+      <AccountOverviewClient sessionUser={session?.user} />
     </main>
   );
 }
-

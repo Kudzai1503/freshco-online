@@ -1,4 +1,4 @@
-export type DepartmentSlug =
+export type CategorySlug =
   | "fruits"
   | "vegetables"
   | "groceries"
@@ -10,62 +10,112 @@ export type DepartmentSlug =
   | "beverages"
   | "household";
 
+export type DepartmentSlug = CategorySlug;
+export type DepartmentFilter = DepartmentSlug | "bakery";
+
 export type StockState = "in_stock" | "low_stock" | "out_of_stock";
 
-export type SortOption =
-  | "featured"
-  | "price-asc"
-  | "price-desc"
-  | "name-asc"
-  | "stock-desc";
+export type FulfillmentMethod =
+  | "standard_delivery"
+  | "express_delivery"
+  | "pickup";
 
-export type Department = {
-  slug: DepartmentSlug;
+export type DeliverySlot =
+  | "today-9-12"
+  | "today-12-3"
+  | "today-4-7"
+  | "tomorrow-9-12";
+
+export type SubstitutionPreference =
+  | "best_match"
+  | "contact_me"
+  | "no_substitutions";
+
+export type OrderStatus =
+  | "placed"
+  | "confirmed"
+  | "preparing"
+  | "packed"
+  | "out_for_delivery"
+  | "delivered"
+  | "ready_for_pickup"
+  | "picked_up";
+
+export type ProductAttributeValue = string | number | boolean;
+
+export type ProductImage = Readonly<{
+  src: string;
+  alt: string;
+}>;
+
+export type Category = Readonly<{
+  slug: CategorySlug;
   name: string;
   description: string;
-};
+}>;
 
-export type Product = {
+export type Department = Category;
+
+export type Address = Readonly<{
+  line1: string;
+  line2?: string;
+  city: string;
+  instructions?: string;
+}>;
+
+export type Product = Readonly<{
   id: string;
   slug: string;
   name: string;
+  category: CategorySlug;
   department: DepartmentSlug;
-  shortDescription: string;
-  description: string;
   price: number;
   compareAtPrice?: number;
-  image: string;
-  tags: string[];
+  unit: string;
+  stockQty: number;
   stockQuantity: number;
   stockState: StockState;
-  featured?: boolean;
-  ageRestricted?: boolean;
+  featured: boolean;
+  organic: boolean;
+  tags: string[];
+  shortDescription: string;
+  longDescription: string;
+  description: string;
+  image: string;
+  images: ProductImage[];
+  badges: string[];
+  ageRestricted: boolean;
+  attributes: Readonly<Record<string, ProductAttributeValue>>;
   sku: string;
-};
+}>;
 
-export type ProductQuery = {
+export type SearchFilters = Readonly<{
   query?: string;
-  department?: DepartmentSlug | "all";
-  stock?: "all" | StockState;
-  sort?: SortOption;
-};
+  category?: CategorySlug | "all";
+  department?: DepartmentFilter | "all";
+  page?: number;
+  pageSize?: number;
+}>;
 
-export type ProductSearchResult = {
+export type ProductSearchResult = Readonly<{
   products: Product[];
   total: number;
-};
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}>;
 
-export type CartItem = {
+export type CartItem = Readonly<{
   productId: string;
   quantity: number;
-};
+}>;
 
-export type Cart = {
+export type Cart = Readonly<{
   items: CartItem[];
   updatedAt: string;
-};
+}>;
 
-export type CheckoutDraft = {
+export type CheckoutDraft = Readonly<{
   email: string;
   firstName: string;
   lastName: string;
@@ -74,46 +124,74 @@ export type CheckoutDraft = {
   addressLine2: string;
   city: string;
   deliveryNotes: string;
+  orderNotes: string;
   paymentMethod: "card" | "cash";
-};
+  fulfillmentMethod: FulfillmentMethod;
+  deliverySlot: DeliverySlot;
+  substitutionPreference: SubstitutionPreference;
+  ageConfirmation: boolean;
+  pickupLocation: string;
+}>;
 
-export type CustomerProfile = {
+export type CustomerProfile = Readonly<{
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   preferredDepartment: DepartmentSlug;
-};
+}>;
 
-export type OrderItem = {
+export type OrderItem = Readonly<{
   productId: string;
   productName: string;
   price: number;
   quantity: number;
   image: string;
-};
+  unit?: string;
+}>;
 
-export type Order = {
+export type OrderTrackingEvent = Readonly<{
+  status: OrderStatus;
+  label: string;
+  description: string;
+  timestamp: string;
+  completed: boolean;
+}>;
+
+export type Order = Readonly<{
   id: string;
   createdAt: string;
-  status: "confirmed" | "processing";
+  status: OrderStatus;
   items: OrderItem[];
   subtotal: number;
   deliveryFee: number;
   total: number;
   customer: CustomerProfile;
   deliveryAddress: string;
-};
+  address?: Address;
+  fulfillmentMethod: FulfillmentMethod;
+  fulfillmentLabel: string;
+  etaLabel: string;
+  paymentMethod: "card" | "cash";
+  deliverySlot: DeliverySlot;
+  substitutionPreference: SubstitutionPreference;
+  orderNotes: string;
+  ageConfirmation: boolean;
+  pickupLocation?: string;
+  trackingTimeline: OrderTrackingEvent[];
+}>;
 
-export type StockSnapshot = Record<
-  string,
-  {
-    quantity: number;
-    state: StockState;
-  }
+export type StockSnapshot = Readonly<
+  Record<
+    string,
+    Readonly<{
+      quantity: number;
+      state: StockState;
+    }>
+  >
 >;
 
-export type CheckoutPreview = {
+export type CheckoutPreview = Readonly<{
   cart: Cart;
   items: Array<{
     product: Product;
@@ -123,5 +201,14 @@ export type CheckoutPreview = {
   subtotal: number;
   deliveryFee: number;
   total: number;
-};
+  fulfillmentMethod: FulfillmentMethod;
+  fulfillmentLabel: string;
+  etaLabel: string;
+}>;
 
+export type ReorderResult = Readonly<{
+  cart: Cart;
+  addedItems: number;
+  limitedItems: string[];
+  unavailableItems: string[];
+}>;

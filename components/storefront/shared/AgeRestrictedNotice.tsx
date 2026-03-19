@@ -5,9 +5,9 @@ export function AgeRestrictedNotice({ compact = false }: Readonly<{ compact?: bo
         compact ? "px-3 py-2 text-[0.8rem]" : "px-4 py-3 text-[0.92rem]"
       }`}
     >
-      <span className="font-extrabold uppercase tracking-[0.12em]">18+ Placeholder</span>
+      <span className="font-extrabold uppercase tracking-[0.12em]">18+ Notice</span>
       <span className="ml-2">
-        Winery items are shown with a visual age notice only in this mock storefront.
+        Winery items require age confirmation at handoff.
       </span>
     </div>
   );

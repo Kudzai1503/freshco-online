@@ -4,12 +4,22 @@ import Link from "next/link";
 
 import { useStorefrontSession } from "@/lib/storefront/browser-session";
 
-export function AccountOverviewClient() {
+type AccountOverviewClientProps = Readonly<{
+  sessionUser?: {
+    name?: string | null;
+    email?: string | null;
+  };
+}>;
+
+export function AccountOverviewClient({ sessionUser }: AccountOverviewClientProps) {
   const { loaded, profile, orders, cart } = useStorefrontSession();
 
   if (!loaded) {
     return <p className="text-[var(--freshco-text-soft)]">Loading account…</p>;
   }
+
+  const displayName = sessionUser?.name?.trim() || `${profile.firstName} ${profile.lastName}`.trim();
+  const displayEmail = sessionUser?.email?.trim() || profile.email;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
@@ -18,10 +28,10 @@ export function AccountOverviewClient() {
           Shopper profile
         </p>
         <h2 className="mt-3 text-[2rem] font-extrabold tracking-[-0.05em] text-[var(--freshco-text)]">
-          {profile.firstName} {profile.lastName}
+          {displayName}
         </h2>
         <p className="mt-3 text-[1rem] leading-7 text-[var(--freshco-text-soft)]">
-          {profile.email} · {profile.phone}
+          {displayEmail} · {profile.phone}
         </p>
         <p className="mt-2 text-[0.92rem] font-semibold text-[var(--freshco-text-soft)]">
           Preferred department: {profile.preferredDepartment.replace("-", " ")}
@@ -54,7 +64,7 @@ export function AccountOverviewClient() {
             {orders.length}
           </p>
           <p className="text-[0.98rem] text-[var(--freshco-text-soft)]">
-            stored in this browser demo
+            in your order history
           </p>
           <Link className="mt-4 inline-flex text-[0.9rem] font-bold text-[var(--freshco-brand-dark)]" href="/account/orders">
             View order history
@@ -64,4 +74,3 @@ export function AccountOverviewClient() {
     </div>
   );
 }
-

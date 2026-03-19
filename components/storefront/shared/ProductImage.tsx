@@ -1,4 +1,7 @@
+ "use client";
+
 import Image from "next/image";
+import { useState } from "react";
 
 type ProductImageProps = Readonly<{
   src: string;
@@ -21,15 +24,17 @@ export function ProductImage({
   fallbackLabel,
   priority = false,
 }: Readonly<ProductImageProps>) {
+  const [hasError, setHasError] = useState(false);
   const hasSrc = src.trim().length > 0;
 
   return (
     <div className={wrapperClassName}>
-      {hasSrc ? (
+      {hasSrc && !hasError ? (
         <Image
           alt={alt}
           className={className}
           fill
+          onError={() => setHasError(true)}
           priority={priority}
           sizes={sizes}
           src={src}

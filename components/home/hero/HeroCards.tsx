@@ -1,15 +1,22 @@
+import Link from "next/link";
+
 import { AssetImage } from "@/components/home/shared/AssetImage";
 
-function ArrowButton({ dark = false }: Readonly<{ dark?: boolean }>) {
+type ArrowButtonProps = Readonly<{
+  dark?: boolean;
+  href: string;
+}>;
+
+function ArrowButton({ dark = false, href }: ArrowButtonProps) {
   return (
-    <button
+    <Link
       aria-label="Explore more"
       className={`group flex h-11 w-11 items-center justify-center rounded-full transition duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67BE63] focus-visible:ring-offset-2 ${
         dark
           ? "bg-white/12 text-white focus-visible:ring-offset-[#0E6C6B]"
           : "bg-white text-[#173534] focus-visible:ring-offset-[#DDF0D7]"
       }`}
-      type="button"
+      href={href}
     >
       <svg
         aria-hidden="true"
@@ -25,7 +32,7 @@ function ArrowButton({ dark = false }: Readonly<{ dark?: boolean }>) {
           strokeWidth="1.8"
         />
       </svg>
-    </button>
+    </Link>
   );
 }
 
@@ -54,7 +61,7 @@ export function HeroCards() {
             <span className="inline-flex rounded-full border border-white/18 bg-white/8 px-4 py-2 text-[0.78rem] font-bold tracking-[0.14em] text-white/90">
               Organic
             </span>
-            <ArrowButton dark />
+            <ArrowButton dark href="/shop?department=fruits" />
           </div>
           <div className="flex gap-1.5 pt-2">
             <span className="h-1.5 w-1.5 rounded-full bg-white/55" />
@@ -76,7 +83,7 @@ export function HeroCards() {
           fallbackLabel="Fresh basket"
           fill
           sizes="(max-width: 1280px) 100vw, 520px"
-          src=""
+          src="/assets/bread.png"
           wrapperClassName="pointer-events-none absolute bottom-0 right-0 h-[64%] w-[68%] translate-x-[6%]"
         />
       </article>
@@ -97,11 +104,11 @@ export function HeroCards() {
           fallbackLabel="Fruit bowl"
           fill
           sizes="(max-width: 1280px) 260px, 320px"
-          src=""
+          src="/assets/bananas.png"
           wrapperClassName="pointer-events-none absolute left-1/2 top-[46%] h-[56%] w-[66%] -translate-x-1/2 -translate-y-1/2"
         />
         <div className="absolute left-1/2 top-[58%] -translate-x-[12%] -translate-y-1/2">
-          <ArrowButton />
+          <ArrowButton href="/shop?department=vegetables" />
         </div>
         <div className="absolute bottom-7 left-7 right-7 flex items-end justify-between gap-4">
           <p className="text-[2rem] font-extrabold leading-none tracking-[-0.06em]">4.8+</p>

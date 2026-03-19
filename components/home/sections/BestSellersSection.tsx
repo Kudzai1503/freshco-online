@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { featuredProducts, trendingProducts } from "@/components/home/data/content";
 import { AssetImage } from "@/components/home/shared/AssetImage";
 import { ProductCard } from "@/components/home/shared/ProductCard";
@@ -8,9 +10,9 @@ export function BestSellersSection() {
     <section className="bg-white px-4 py-7 sm:px-6 lg:px-8 xl:px-10 2xl:px-14" id="best-sellers">
       <div className="rounded-[38px] border border-[#173534]/10 bg-[#F8FCF7] px-5 py-8 sm:px-7 lg:px-10 lg:py-10">
         <SectionHeading
-          copy="This spotlight uses more of the viewport width so the central offer feels intentional and substantial, not just another narrow card in a stack."
+          copy="Keep the week covered with a produce box built around fruit, salad greens, and easy-cook vegetables."
           eyebrow="BEST SELLERS"
-          title="A stronger center-weighted product story with supporting favorites around it."
+          title="Popular staples with one easy produce-box start."
         />
         <div className="mt-8 grid gap-4 2xl:grid-cols-[0.78fr_1.25fr_0.78fr]">
           <div className="grid gap-4">
@@ -38,12 +40,12 @@ export function BestSellersSection() {
                     <p className="text-[2.1rem] font-extrabold tracking-[-0.05em] text-[#173534]">
                       $28.90
                     </p>
-                    <button
+                    <Link
                       className="inline-flex h-12 items-center justify-center rounded-full bg-[#173534] px-5 text-[0.82rem] font-extrabold uppercase tracking-[0.14em] text-white transition duration-200 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67BE63] focus-visible:ring-offset-2"
-                      type="button"
+                      href="/shop?department=fruits"
                     >
-                      Add to box
-                    </button>
+                      Shop produce
+                    </Link>
                   </div>
                 </div>
                 <div className="relative h-[320px] overflow-hidden rounded-[28px] border border-[#173534]/8 bg-[#F8FCF7]">
@@ -54,7 +56,7 @@ export function BestSellersSection() {
                     fallbackLabel="Harvest box"
                     fill
                     sizes="(max-width: 1280px) 100vw, 480px"
-                    src=""
+                    src="/assets/bread.png"
                     wrapperClassName="absolute inset-0"
                   />
                 </div>

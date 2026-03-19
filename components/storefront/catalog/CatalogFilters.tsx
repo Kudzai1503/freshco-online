@@ -1,121 +1,76 @@
 import Link from "next/link";
 
-import type { Department, ProductQuery, SortOption, StockState } from "@/lib/storefront/types";
+import { createCatalogHref, type SearchParamsMap } from "@/lib/storefront/catalog-url";
+import type { Department, SearchFilters } from "@/lib/storefront/types";
 
-const prominentDepartments = ["deli", "confectionery", "butchery", "winery"];
+const departmentOptions = [
+  { slug: "fruits", name: "Fruits" },
+  { slug: "vegetables", name: "Vegetables" },
+  { slug: "groceries", name: "Groceries" },
+  { slug: "deli", name: "Deli" },
+  { slug: "confectionery", name: "Confectionery" },
+  { slug: "butchery", name: "Butchery" },
+  { slug: "winery", name: "Winery" },
+  { slug: "dairy-eggs", name: "Dairy & Eggs" },
+  { slug: "bakery", name: "Bakery" },
+  { slug: "beverages", name: "Beverages" },
+  { slug: "household", name: "Household" },
+] as const;
 
-type SearchParamsMap = Record<string, string | string[] | undefined>;
-
-function createHref(
-  current: SearchParamsMap,
-  updates: Record<string, string | undefined>,
-) {
-  const params = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(current)) {
-    const normalized = Array.isArray(value) ? value[0] : value;
-    if (normalized) {
-      params.set(key, normalized);
-    }
-  }
-
-  for (const [key, value] of Object.entries(updates)) {
-    if (!value || value === "all") {
-      params.delete(key);
-    } else {
-      params.set(key, value);
-    }
-  }
-
-  const query = params.toString();
-  return query ? `/shop?${query}` : "/shop";
-}
-
-export function CatalogFilters({
-  departments,
-  filters,
-  searchParams,
-}: {
+type CatalogFiltersProps = Readonly<{
   departments: Department[];
-  filters: ProductQuery;
+  filters: SearchFilters;
   searchParams: SearchParamsMap;
-}) {
-  const sortOptions: { value: SortOption; label: string }[] = [
-    { value: "featured", label: "Featured" },
-    { value: "price-asc", label: "Price ↑" },
-    { value: "price-desc", label: "Price ↓" },
-    { value: "name-asc", label: "Name" },
-    { value: "stock-desc", label: "Stock" },
-  ];
+}>;
 
-  const stockOptions: { value: "all" | StockState; label: string }[] = [
-    { value: "all", label: "All stock" },
-    { value: "in_stock", label: "In stock" },
-    { value: "low_stock", label: "Low stock" },
-    { value: "out_of_stock", label: "Out of stock" },
-  ];
+function FilterPanel({ departments, filters, searchParams }: CatalogFiltersProps) {
+  void departments;
 
   return (
-    <aside className="rounded-[32px] border border-[var(--freshco-border)] bg-[var(--freshco-surface-soft)] p-5 xl:sticky xl:top-24">
-      <div className="flex flex-wrap gap-2">
-        {departments.map((department) => (
-          <Link
-            key={department.slug}
-            className={`inline-flex rounded-full px-4 py-2 text-[0.76rem] font-bold uppercase tracking-[0.12em] transition ${
-              filters.department === department.slug
-                ? "bg-[var(--freshco-brand)] text-white"
-                : "border border-[var(--freshco-border)] bg-white text-[var(--freshco-text-soft)] hover:border-[var(--freshco-brand)] hover:text-[var(--freshco-text)]"
-            } ${prominentDepartments.includes(department.slug) ? "ring-1 ring-[var(--freshco-brand)]/25" : ""}`}
-            href={createHref(searchParams, { department: department.slug })}
-          >
-            {department.name}
-          </Link>
-        ))}
-      </div>
+    <div className="flex flex-wrap gap-2">
+      {departmentOptions.map((department) => (
+        <Link
+          key={department.slug}
+          className={`inline-flex rounded-full px-4 py-2 text-[0.76rem] font-bold uppercase tracking-[0.12em] transition ${
+            filters.department === department.slug
+              ? "bg-[var(--freshco-brand)] text-white"
+              : "border border-[var(--freshco-border)] bg-white text-[var(--freshco-text-soft)] hover:border-[var(--freshco-brand)] hover:text-[var(--freshco-text)]"
+          } ${["deli", "confectionery", "butchery", "winery"].includes(department.slug) ? "ring-1 ring-[var(--freshco-brand)]/25" : ""}`}
+          aria-current={filters.department === department.slug ? "page" : undefined}
+          href={createCatalogHref(searchParams, { department: department.slug })}
+        >
+          {department.name}
+        </Link>
+      ))}
+    </div>
+  );
+}
 
-      <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
-        <div>
-          <p className="text-[0.78rem] font-extrabold uppercase tracking-[0.16em] text-[var(--freshco-text-soft)]">
-            Stock
+export function CatalogFilters(props: CatalogFiltersProps) {
+  return (
+    <>
+      <details className="rounded-[32px] border border-[var(--freshco-border)] bg-[var(--freshco-surface-soft)] p-5 xl:hidden">
+        <div className="mb-5 flex justify-center">
+          <p className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#173534] px-5 text-[0.84rem] font-extrabold uppercase tracking-[0.18em] text-white shadow-[0_14px_30px_rgba(23,53,52,0.18)]">
+            Filters
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {stockOptions.map((option) => (
-              <Link
-                key={option.value}
-                className={`inline-flex rounded-full px-4 py-2 text-[0.76rem] font-bold uppercase tracking-[0.12em] transition ${
-                  (filters.stock ?? "all") === option.value
-                    ? "bg-[var(--freshco-text)] text-white"
-                    : "border border-[var(--freshco-border)] bg-white text-[var(--freshco-text-soft)]"
-                }`}
-                href={createHref(searchParams, { stock: option.value })}
-              >
-                {option.label}
-              </Link>
-            ))}
-          </div>
         </div>
+        <summary className="cursor-pointer list-none rounded-full text-[0.82rem] font-extrabold uppercase tracking-[0.14em] text-[var(--freshco-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--freshco-brand)] focus-visible:ring-offset-2">
+          Departments
+        </summary>
+        <div className="mt-5">
+          <FilterPanel {...props} />
+        </div>
+      </details>
 
-        <div>
-          <p className="text-[0.78rem] font-extrabold uppercase tracking-[0.16em] text-[var(--freshco-text-soft)]">
-            Sort
+      <aside className="hidden rounded-[32px] border border-[var(--freshco-border)] bg-[var(--freshco-surface-soft)] p-5 xl:sticky xl:top-24 xl:block">
+        <div className="mb-5 flex justify-center">
+          <p className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#173534] px-5 text-[0.84rem] font-extrabold uppercase tracking-[0.18em] text-white shadow-[0_14px_30px_rgba(23,53,52,0.18)]">
+            Filters
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {sortOptions.map((option) => (
-              <Link
-                key={option.value}
-                className={`inline-flex rounded-full px-4 py-2 text-[0.76rem] font-bold uppercase tracking-[0.12em] transition ${
-                  (filters.sort ?? "featured") === option.value
-                    ? "bg-[var(--freshco-brand-dark)] text-white"
-                    : "border border-[var(--freshco-border)] bg-white text-[var(--freshco-text-soft)]"
-                }`}
-                href={createHref(searchParams, { sort: option.value })}
-              >
-                {option.label}
-              </Link>
-            ))}
-          </div>
         </div>
-      </div>
-    </aside>
+        <FilterPanel {...props} />
+      </aside>
+    </>
   );
 }
