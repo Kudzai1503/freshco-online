@@ -6,13 +6,15 @@ import { useStorefrontSession } from "@/lib/storefront/browser-session";
 
 import { StockBadge } from "@/components/storefront/shared/StockBadge";
 
+type AddToCartButtonProps = Readonly<{
+  product: Product;
+  fullWidth?: boolean;
+}>;
+
 export function AddToCartButton({
   product,
   fullWidth = false,
-}: {
-  product: Product;
-  fullWidth?: boolean;
-}) {
+}: AddToCartButtonProps) {
   const { setCartItem, cart, loaded, stockSnapshot } = useStorefrontSession();
   const [submitting, setSubmitting] = useState(false);
   const liveProduct = useMemo(() => {

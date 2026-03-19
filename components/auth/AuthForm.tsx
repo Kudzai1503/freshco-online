@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { FormEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -25,8 +26,8 @@ export function AuthForm({ mode, googleEnabled }: AuthFormProps) {
   const [referrerCallbackUrl, setReferrerCallbackUrl] = useState("/");
 
   const isSignUp = mode === "sign-up";
-  const demoCredentials = {
-    email: "shopper@freshco.demo",
+  const shopperCredentials = {
+    email: "kudzai.damba@freshco.co.zw",
     password: "Freshco123!",
   };
   const callbackUrl = useMemo(() => {
@@ -35,7 +36,7 @@ export function AuthForm({ mode, googleEnabled }: AuthFormProps) {
   }, [referrerCallbackUrl, searchParams]);
 
   useEffect(() => {
-    setReferrerCallbackUrl(getReferrerCallback(document.referrer));
+    setReferrerCallbackUrl(getReferrerCallback(globalThis.document.referrer));
   }, []);
 
   const alternateHref = useMemo(
@@ -62,7 +63,7 @@ export function AuthForm({ mode, googleEnabled }: AuthFormProps) {
     router.refresh();
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitting(true);
     setError(null);
@@ -95,14 +96,14 @@ export function AuthForm({ mode, googleEnabled }: AuthFormProps) {
     }
   }
 
-  async function handleDemoSignIn() {
+  async function handleQuickSignIn() {
     setSubmitting(true);
     setError(null);
 
     try {
-      setEmail(demoCredentials.email);
-      setPassword(demoCredentials.password);
-      await submitCredentials(demoCredentials.email, demoCredentials.password);
+      setEmail(shopperCredentials.email);
+      setPassword(shopperCredentials.password);
+      await submitCredentials(shopperCredentials.email, shopperCredentials.password);
     } catch (submitError) {
       setError(
         submitError instanceof Error ? submitError.message : "Authentication failed.",
@@ -136,21 +137,21 @@ export function AuthForm({ mode, googleEnabled }: AuthFormProps) {
       {!isSignUp ? (
         <div className="mt-6 rounded-[22px] border border-[#DCE8DA] bg-[#F6FBF5] p-4">
           <p className="text-[0.72rem] font-extrabold uppercase tracking-[0.16em] text-[var(--freshco-brand-dark)]">
-            Test credentials
+            Quick access
           </p>
           <p className="mt-2 text-[0.94rem] text-[var(--freshco-text-soft)]">
-            Email: <strong className="text-[var(--freshco-text)]">{demoCredentials.email}</strong>
+            Email: <strong className="text-[var(--freshco-text)]">{shopperCredentials.email}</strong>
           </p>
           <p className="mt-1 text-[0.94rem] text-[var(--freshco-text-soft)]">
-            Password: <strong className="text-[var(--freshco-text)]">{demoCredentials.password}</strong>
+            Password: <strong className="text-[var(--freshco-text)]">{shopperCredentials.password}</strong>
           </p>
           <button
             className="mt-4 inline-flex h-11 items-center justify-center rounded-full border border-[#173534]/12 bg-white px-5 text-[0.78rem] font-extrabold uppercase tracking-[0.14em] text-[var(--freshco-text)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#FDFEFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--freshco-brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={submitting}
-            onClick={() => void handleDemoSignIn()}
+            onClick={() => void handleQuickSignIn()}
             type="button"
           >
-            Continue with demo account
+            Use shopper account
           </button>
         </div>
       ) : null}
@@ -229,7 +230,8 @@ export function AuthForm({ mode, googleEnabled }: AuthFormProps) {
               : "Signing in..."
             : isSignUp
               ? "Create account"
-              : "Sign in"}
+              : "Sign in"
+          }
         </button>
       </form>
 

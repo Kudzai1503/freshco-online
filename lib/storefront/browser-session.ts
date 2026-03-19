@@ -23,6 +23,7 @@ import type {
   CustomerProfile,
   Order,
   Product,
+  ReorderResult,
   StockSnapshot,
 } from "@/lib/storefront/types";
 
@@ -50,8 +51,12 @@ const emptyDraft: CheckoutDraft = {
   addressLine2: "",
   city: "",
   deliveryNotes: "",
+  orderNotes: "",
   paymentMethod: "card",
   fulfillmentMethod: "standard_delivery",
+  deliverySlot: defaultCheckoutDraft.deliverySlot,
+  substitutionPreference: defaultCheckoutDraft.substitutionPreference,
+  ageConfirmation: false,
   pickupLocation: defaultCheckoutDraft.pickupLocation,
 };
 
@@ -145,7 +150,7 @@ function getServerSnapshot(): SessionState {
 }
 
 function getClientSnapshot(): SessionState {
-  if (typeof window === "undefined") {
+  if (typeof globalThis.localStorage === "undefined") {
     return getServerSnapshot();
   }
 
@@ -174,13 +179,13 @@ function getClientSnapshot(): SessionState {
 }
 
 function subscribe(onStoreChange: () => void) {
-  if (typeof window === "undefined") {
+  if (typeof globalThis.addEventListener === "undefined") {
     return () => {};
   }
 
-  window.addEventListener(storefrontStorageEvent, onStoreChange);
+  globalThis.addEventListener(storefrontStorageEvent, onStoreChange);
   return () => {
-    window.removeEventListener(storefrontStorageEvent, onStoreChange);
+    globalThis.removeEventListener(storefrontStorageEvent, onStoreChange);
   };
 }
 
@@ -195,6 +200,10 @@ export function useStorefrontSession() {
     await mockStorefrontClient.removeCartItem(productId);
   }, []);
 
+  const clearCart = useCallback(async () => {
+    await mockStorefrontClient.clearCart();
+  }, []);
+
   const saveCheckoutDraft = useCallback(async (draft: CheckoutDraft) => {
     await mockStorefrontClient.saveCheckoutDraft(draft);
   }, []);
@@ -207,16 +216,31 @@ export function useStorefrontSession() {
     return mockStorefrontClient.placeMockOrder();
   }, []);
 
+  const reorderOrder = useCallback(async (orderId: string): Promise<ReorderResult> => {
+    return mockStorefrontClient.reorderOrder(orderId);
+  }, []);
+
   return useMemo(
     () => ({
       ...state,
       setCartItem,
       removeCartItem,
+      clearCart,
       saveCheckoutDraft,
       saveProfile,
       placeOrder,
+      reorderOrder,
     }),
-    [placeOrder, removeCartItem, saveCheckoutDraft, saveProfile, setCartItem, state],
+    [
+      clearCart,
+      placeOrder,
+      removeCartItem,
+      reorderOrder,
+      saveCheckoutDraft,
+      saveProfile,
+      setCartItem,
+      state,
+    ],
   );
 }
 

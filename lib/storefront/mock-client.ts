@@ -5,6 +5,7 @@ import {
   buildTrackingTimeline,
   defaultCheckoutDraft,
   defaultCustomerProfile,
+  getDeliverySlot,
   getFulfillmentOption,
   pickupLocationLabel,
 } from "@/lib/storefront/mock-data/orders";
@@ -26,10 +27,12 @@ import type {
   CheckoutPreview,
   Order,
   Product,
-  ProductQuery,
+  ReorderResult,
   SearchFilters,
-  SortOption,
 } from "@/lib/storefront/types";
+
+const DEFAULT_PAGE_SIZE = 12;
+const BAKERY_TAG_MATCHERS = ["bakery", "cookie", "shortbread", "biscuit", "truffle"];
 
 function createOrderId() {
   if (typeof globalThis.crypto !== "undefined" && "randomUUID" in globalThis.crypto) {
@@ -39,34 +42,81 @@ function createOrderId() {
   return `mock-order-${Date.now()}`;
 }
 
-function sortProducts(list: Product[], sort: SortOption = "featured") {
-  const next = [...list];
+function isBakeryAliasProduct(product: Product) {
+  const haystack = [
+    product.name,
+    product.shortDescription,
+    ...product.tags,
+    ...product.badges,
+    ...Object.values(product.attributes).map(String),
+  ]
+    .join(" ")
+    .toLowerCase();
 
-  switch (sort) {
-    case "price-asc":
-      return next.sort((a, b) => a.price - b.price);
-    case "price-desc":
-      return next.sort((a, b) => b.price - a.price);
-    case "name-asc":
-      return next.sort((a, b) => a.name.localeCompare(b.name));
-    case "stock-desc":
-      return next.sort((a, b) => b.stockQty - a.stockQty);
-    case "featured":
-    default:
-      return next.sort((a, b) => Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name));
-  }
+  return BAKERY_TAG_MATCHERS.some((matcher) => haystack.includes(matcher));
 }
 
-function applySearchFilters(source: Product[], params: SearchFilters = {}): Product[] {
+function getSearchScore(product: Product, query: string) {
+  const normalizedQuery = query.toLowerCase();
+  const categoryName =
+    categories.find((category) => category.slug === product.category)?.name.toLowerCase() ?? "";
+  let score = 0;
+
+  if (product.name.toLowerCase().includes(normalizedQuery)) {
+    score += 6;
+  }
+
+  if (product.tags.some((tag) => tag.toLowerCase().includes(normalizedQuery))) {
+    score += 4;
+  }
+
+  if (product.shortDescription.toLowerCase().includes(normalizedQuery)) {
+    score += 3;
+  }
+
+  if (product.category.toLowerCase().includes(normalizedQuery) || categoryName.includes(normalizedQuery)) {
+    score += 2;
+  }
+
+  if (product.badges.some((badge) => badge.toLowerCase().includes(normalizedQuery))) {
+    score += 1;
+  }
+
+  return score;
+}
+
+function sortProducts(list: Product[], query?: string) {
+  const next = [...list];
+
+  if (query) {
+    return next.sort((a, b) => {
+      const difference = getSearchScore(b, query) - getSearchScore(a, query);
+      if (difference !== 0) {
+        return difference;
+      }
+
+      return Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name);
+    });
+  }
+
+  return next.sort(
+    (a, b) => Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name),
+  );
+}
+
+function applySearchFilters(source: Product[], params: SearchFilters = {}) {
   const query = params.query?.trim().toLowerCase();
   const category = params.category ?? params.department;
   let next = [...source];
 
   if (query) {
     next = next.filter((product) => {
+      const categoryName =
+        categories.find((category) => category.slug === product.category)?.name ?? product.category;
       const haystack = [
         product.name,
         product.category,
+        categoryName,
         product.shortDescription,
         product.longDescription,
         ...product.tags,
@@ -81,14 +131,16 @@ function applySearchFilters(source: Product[], params: SearchFilters = {}): Prod
   }
 
   if (category && category !== "all") {
-    next = next.filter((product) => product.category === category);
+    next = next.filter((product) =>
+      category === "bakery" ? isBakeryAliasProduct(product) : product.category === category,
+    );
   }
 
-  if (params.stock && params.stock !== "all") {
-    next = next.filter((product) => product.stockState === params.stock);
-  }
+  const sorted = sortProducts(next, query);
 
-  return sortProducts(next, params.sort);
+  return {
+    products: sorted,
+  };
 }
 
 function buildCheckoutPreview(cart: Cart): CheckoutPreview {
@@ -135,10 +187,20 @@ export const mockStorefrontClient: StorefrontClient = {
   },
 
   async searchProducts(filters = {}) {
+    const page = Math.max(1, filters.page ?? 1);
+    const pageSize = Math.max(1, Math.min(filters.pageSize ?? DEFAULT_PAGE_SIZE, 24));
     const result = applySearchFilters(getResolvedProducts(), filters);
+    const total = result.products.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const safePage = Math.min(page, totalPages);
+    const startIndex = (safePage - 1) * pageSize;
+
     return {
-      products: result,
-      total: result.length,
+      products: result.products.slice(startIndex, startIndex + pageSize),
+      total,
+      page: safePage,
+      pageSize,
+      totalPages,
     };
   },
 
@@ -226,6 +288,7 @@ export const mockStorefrontClient: StorefrontClient = {
     const preview = buildCheckoutPreview(cart);
     const profile = getStoredCustomerProfile();
     const draft = getStoredCheckoutDraft();
+    const hasWineryItems = preview.items.some((item) => item.product.ageRestricted);
 
     if (preview.items.length === 0) {
       throw new Error("Your cart is empty.");
@@ -237,9 +300,14 @@ export const mockStorefrontClient: StorefrontClient = {
       }
     }
 
+    if (hasWineryItems && !draft.ageConfirmation) {
+      throw new Error("Please confirm that the shopper is 18+ for winery items.");
+    }
+
     updateStockAfterOrder(cart.items);
     const createdAt = new Date().toISOString();
     const fulfillment = getFulfillmentOption(draft.fulfillmentMethod);
+    const deliverySlot = getDeliverySlot(draft.deliverySlot);
     const addressLabel =
       draft.fulfillmentMethod === "pickup"
         ? draft.pickupLocation || pickupLocationLabel
@@ -248,7 +316,7 @@ export const mockStorefrontClient: StorefrontClient = {
     const order: Order = {
       id: createOrderId(),
       createdAt,
-      status: "confirmed",
+      status: "placed",
       items: preview.items.map((item) => ({
         productId: item.product.id,
         productName: item.product.name,
@@ -274,10 +342,18 @@ export const mockStorefrontClient: StorefrontClient = {
               line2: draft.addressLine2,
               city: draft.city,
               instructions: draft.deliveryNotes,
-            },
+      },
       fulfillmentMethod: draft.fulfillmentMethod,
       fulfillmentLabel: fulfillment.label,
-      etaLabel: fulfillment.etaLabel,
+      etaLabel:
+        draft.fulfillmentMethod === "pickup"
+          ? fulfillment.etaLabel
+          : `${deliverySlot.label} · ${fulfillment.etaLabel}`,
+      paymentMethod: draft.paymentMethod,
+      deliverySlot: draft.deliverySlot,
+      substitutionPreference: draft.substitutionPreference,
+      orderNotes: draft.orderNotes,
+      ageConfirmation: draft.ageConfirmation,
       pickupLocation:
         draft.fulfillmentMethod === "pickup"
           ? draft.pickupLocation || pickupLocationLabel
@@ -300,6 +376,69 @@ export const mockStorefrontClient: StorefrontClient = {
     return getStoredOrders().find((order) => order.id === orderId) ?? null;
   },
 
+  async reorderOrder(orderId): Promise<ReorderResult> {
+    const order = getStoredOrders().find((entry) => entry.id === orderId);
+
+    if (!order) {
+      throw new Error("This mock order could not be found.");
+    }
+
+    const currentCart = getStoredCart();
+    const nextQuantities = new Map(currentCart.items.map((item) => [item.productId, item.quantity]));
+    const limitedItems: string[] = [];
+    const unavailableItems: string[] = [];
+    let addedItems = 0;
+
+    for (const item of order.items) {
+      const product = products.find((entry) => entry.id === item.productId);
+
+      if (!product) {
+        unavailableItems.push(item.productName);
+        continue;
+      }
+
+      const resolved = getResolvedProduct(product);
+      const existingQuantity = nextQuantities.get(item.productId) ?? 0;
+
+      if (resolved.stockQty <= existingQuantity) {
+        unavailableItems.push(resolved.name);
+        continue;
+      }
+
+      const nextQuantity = Math.min(existingQuantity + item.quantity, resolved.stockQty);
+      const actualAdded = nextQuantity - existingQuantity;
+
+      if (actualAdded <= 0) {
+        unavailableItems.push(resolved.name);
+        continue;
+      }
+
+      nextQuantities.set(item.productId, nextQuantity);
+      addedItems += actualAdded;
+
+      if (actualAdded < item.quantity) {
+        limitedItems.push(resolved.name);
+      }
+    }
+
+    const cart: Cart = {
+      items: Array.from(nextQuantities.entries()).map(([productId, quantity]) => ({
+        productId,
+        quantity,
+      })),
+      updatedAt: new Date().toISOString(),
+    };
+
+    saveStoredCart(cart);
+
+    return {
+      cart,
+      addedItems,
+      limitedItems,
+      unavailableItems,
+    };
+  },
+
   async getMockProfile() {
     return getStoredCustomerProfile() ?? defaultCustomerProfile;
   },
@@ -314,7 +453,7 @@ export const mockStorefrontClient: StorefrontClient = {
     return mockStorefrontClient.getCategories();
   },
 
-  async getProducts(params: ProductQuery = {}) {
+  async getProducts(params: SearchFilters = {}) {
     return mockStorefrontClient.searchProducts(params);
   },
 

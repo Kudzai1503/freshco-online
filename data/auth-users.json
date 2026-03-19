@@ -1,8 +1,8 @@
 [
   {
-    "id": "demo-shopper-account",
-    "name": "FreshCo Demo Shopper",
-    "email": "shopper@freshco.demo",
+    "id": "shopper-account",
+    "name": "Kudzai Damba",
+    "email": "kudzai.damba@freshco.co.zw",
     "passwordHash": "freshcotestsalt123:0d409c9323012b5197b65b6ef954dc76827797bc91532e2d57b8a39f9999e12264f81b1d117d63548441357a40cb1466853bb7cd6a98d2933249b87ac5ca8cc1",
     "createdAt": "2026-03-18T00:00:00.000Z"
   }

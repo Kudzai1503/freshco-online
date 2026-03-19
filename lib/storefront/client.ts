@@ -7,12 +7,15 @@ import type {
   Department,
   Order,
   Product,
-  ProductQuery,
   ProductSearchResult,
+  ReorderResult,
   SearchFilters,
 } from "@/lib/storefront/types";
 
 export interface StorefrontClient {
+  // Integration note: this interface is the swap point for the future Spring Boot commerce API.
+  // Presentation and route-level query helpers should continue to depend on this contract rather
+  // than importing mock storage or mock-data modules directly.
   getCategories(): Promise<Category[]>;
   getFeaturedProducts(): Promise<Product[]>;
   searchProducts(filters?: SearchFilters): Promise<ProductSearchResult>;
@@ -29,12 +32,13 @@ export interface StorefrontClient {
   placeMockOrder(): Promise<Order>;
   getOrders(): Promise<Order[]>;
   getOrderById(orderId: string): Promise<Order | null>;
+  reorderOrder(orderId: string): Promise<ReorderResult>;
   getMockProfile(): Promise<CustomerProfile>;
   saveMockProfile(profile: CustomerProfile): Promise<CustomerProfile>;
 
   // Compatibility methods for the current app during migration.
   getDepartments(): Promise<Department[]>;
-  getProducts(params?: ProductQuery): Promise<ProductSearchResult>;
+  getProducts(params?: SearchFilters): Promise<ProductSearchResult>;
   setCartItem(productId: string, quantity: number): Promise<Cart>;
   getCustomerProfile(): Promise<CustomerProfile>;
   saveCustomerProfile(profile: CustomerProfile): Promise<CustomerProfile>;

@@ -21,6 +21,24 @@ type SeedProduct = Readonly<{
   sku: string;
 }>;
 
+const categoryImageMap = {
+  fruits: ["/assets/bananas.png"],
+  vegetables: ["/assets/bananas.png"],
+  confectionery: ["/assets/bread.png", "/assets/heack.png"],
+  winery: ["/assets/wine.png"],
+  beverages: ["/assets/lucozade.png"],
+  groceries: ["/assets/heack.png"],
+  deli: ["/assets/heack.png"],
+  butchery: ["/assets/heack.png"],
+  "dairy-eggs": ["/assets/heack.png"],
+  household: ["/assets/heack.png"],
+} as const;
+
+function resolveProductImage(seed: SeedProduct, index: number) {
+  const images = categoryImageMap[seed.category];
+  return images[index % images.length];
+}
+
 function deriveStockState(stockQty: number): StockState {
   if (stockQty <= 0) {
     return "out_of_stock";
@@ -33,8 +51,8 @@ function deriveStockState(stockQty: number): StockState {
   return "in_stock";
 }
 
-function createProduct(seed: SeedProduct): Product {
-  const image = seed.image ?? "";
+function createProduct(seed: SeedProduct, index: number): Product {
+  const image = seed.image ?? resolveProductImage(seed, index);
   const stockState = deriveStockState(seed.stockQty);
 
   return {
@@ -1074,7 +1092,7 @@ const productSeeds: SeedProduct[] = [
   },
 ];
 
-export const products = productSeeds.map(createProduct);
+export const products = productSeeds.map((seed, index) => createProduct(seed, index));
 
 export const defaultStockSnapshot: StockSnapshot = Object.fromEntries(
   products.map((product) => [

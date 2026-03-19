@@ -1,5 +1,5 @@
 import { mockStorefrontClient } from "@/lib/storefront/mock-client";
-import type { DepartmentSlug, ProductQuery, SortOption, StockState } from "@/lib/storefront/types";
+import type { DepartmentFilter, SearchFilters } from "@/lib/storefront/types";
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
 
@@ -7,18 +7,27 @@ function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export function parseCatalogSearchParams(searchParams: RawSearchParams): ProductQuery {
+function parseNumberParam(value: string | string[] | undefined) {
+  const normalized = firstParam(value);
+
+  if (!normalized) {
+    return undefined;
+  }
+
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+export function parseCatalogSearchParams(searchParams: RawSearchParams): SearchFilters {
   const department = firstParam(searchParams.department);
-  const stock = firstParam(searchParams.stock);
-  const sort = firstParam(searchParams.sort);
   const query = firstParam(searchParams.q);
 
   return {
     query: query?.trim() || undefined,
     department:
-      department && department !== "all" ? (department as DepartmentSlug) : "all",
-    stock: stock && stock !== "all" ? (stock as StockState) : "all",
-    sort: (sort as SortOption) || "featured",
+      department && department !== "all" ? (department as DepartmentFilter) : "all",
+    page: Math.max(1, parseNumberParam(searchParams.page) ?? 1),
+    pageSize: Math.max(1, parseNumberParam(searchParams.pageSize) ?? 12),
   };
 }
 

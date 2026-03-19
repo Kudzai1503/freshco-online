@@ -1,11 +1,13 @@
+import Link from "next/link";
+
 import { AssetImage } from "@/components/home/shared/AssetImage";
 
 function ArrowCircle() {
   return (
-    <button
+    <Link
       aria-label="Discover produce"
       className="group flex h-12 w-12 items-center justify-center rounded-full border border-[#173534]/12 bg-white text-[#173534] transition duration-200 hover:-translate-y-0.5 hover:bg-[#F7FBF4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67BE63] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-      type="button"
+      href="/shop?department=fruits"
     >
       <svg
         aria-hidden="true"
@@ -15,22 +17,22 @@ function ArrowCircle() {
       >
         <path d="M5 10H15M11 6L15 10L11 14" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
       </svg>
-    </button>
+    </Link>
   );
 }
 
 function AvatarStack() {
   const avatars = [
-    { src: "", alt: "FreshCo customer Anna", label: "A1" },
-    { src: "", alt: "FreshCo customer Maya", label: "A2" },
-    { src: "", alt: "FreshCo customer James", label: "A3" },
+    { src: "/assets/bananas.png", alt: "FreshCo customer Anna", label: "A1" },
+    { src: "/assets/heack.png", alt: "FreshCo customer Maya", label: "A2" },
+    { src: "/assets/bread.png", alt: "FreshCo customer James", label: "A3" },
   ];
 
   return (
     <div className="flex items-center">
       {avatars.map((avatar, index) => (
         <AssetImage
-          key={`${avatar.alt}-${index}`}
+          key={avatar.alt}
           alt={avatar.alt}
           className="object-cover"
           fallbackClassName="flex h-full w-full items-center justify-center rounded-full bg-[#B8D8D1] text-[0.72rem] font-extrabold uppercase tracking-[0.08em] text-[#173534]"
@@ -69,7 +71,7 @@ export function HeroAside() {
           fallbackLabel="Shopper photo"
           fill
           sizes="(max-width: 1280px) 100vw, 520px"
-          src=""
+          src="/assets/bread.png"
           wrapperClassName="pointer-events-none absolute bottom-0 left-1/2 h-[74%] w-[92%] -translate-x-1/2"
         />
       </section>

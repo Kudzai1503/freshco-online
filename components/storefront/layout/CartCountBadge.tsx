@@ -4,12 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 import { useStorefrontSession } from "@/lib/storefront/browser-session";
+import { ProductImage } from "@/components/storefront/shared/ProductImage";
+import { AgeRestrictedNotice } from "@/components/storefront/shared/AgeRestrictedNotice";
+import { StockBadge } from "@/components/storefront/shared/StockBadge";
 
 export function CartCountBadge() {
-  const { cart, loaded, preview } = useStorefrontSession();
+  const { cart, loaded, preview, setCartItem, removeCartItem } = useStorefrontSession();
   const [isOpen, setIsOpen] = useState(false);
   const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
   const hasItems = preview.items.length > 0;
+  const hasWineryItems = preview.items.some((item) => item.product.ageRestricted);
 
   useEffect(() => {
     if (!isOpen) {
@@ -22,13 +26,13 @@ export function CartCountBadge() {
       }
     }
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
+    const previousOverflow = globalThis.document.body.style.overflow;
+    globalThis.document.body.style.overflow = "hidden";
+    globalThis.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
+      globalThis.document.body.style.overflow = previousOverflow;
+      globalThis.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen]);
 
@@ -79,8 +83,10 @@ export function CartCountBadge() {
           />
           <aside
             aria-label="Shopping cart"
-            className="absolute right-0 top-0 flex h-full w-full max-w-[440px] flex-col border-l border-[#E7ECE4] bg-white"
+            aria-modal="true"
+            className="absolute right-0 top-0 flex h-full w-full max-w-[440px] flex-col border-l border-[#E7ECE4] bg-white shadow-[0_18px_44px_rgba(23,53,52,0.08)]"
             id="storefront-cart-drawer"
+            role="dialog"
           >
             <div className="border-b border-[#EEF2EC] px-5 py-5 sm:px-6">
               <div className="flex items-start justify-between gap-4">
@@ -123,18 +129,24 @@ export function CartCountBadge() {
                 </div>
               ) : (
                 <div className="grid gap-0">
+                  {hasWineryItems ? (
+                    <div className="mb-4">
+                      <AgeRestrictedNotice compact />
+                    </div>
+                  ) : null}
                   {preview.items.map((item) => (
-                    <article
-                      key={item.product.id}
-                      className="border-b border-[#EEF2EC] py-4 last:border-b-0"
-                    >
+                    <article key={item.product.id} className="border-b border-[#EEF2EC] py-4 last:border-b-0">
                       <div className="flex items-start gap-4">
-                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[18px] border border-[#EEF2EC] bg-[#F7FBF4] text-[0.78rem] font-extrabold uppercase tracking-[0.08em] text-[var(--freshco-brand-dark)]">
-                          {item.product.name
-                            .split(" ")
-                            .slice(0, 2)
-                            .map((part) => part[0])
-                            .join("")}
+                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[18px] border border-[#EEF2EC] bg-[#F7FBF4]">
+                          <ProductImage
+                            alt={item.product.name}
+                            className="object-contain p-2"
+                            fallbackClassName="flex h-full w-full items-center justify-center text-[0.74rem] font-extrabold uppercase tracking-[0.08em] text-[var(--freshco-brand-dark)]"
+                            fallbackLabel={item.product.name}
+                            sizes="64px"
+                            src={item.product.image}
+                            wrapperClassName="absolute inset-0"
+                          />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[#8A9B97]">
@@ -148,22 +160,59 @@ export function CartCountBadge() {
                             <span className="text-[#D4DDD1]">|</span>
                             <span>${(item.lineTotal / item.quantity).toFixed(2)} each</span>
                           </div>
+                          <div className="mt-3">
+                            <StockBadge
+                              quantity={item.product.stockQuantity}
+                              stockState={item.product.stockState}
+                            />
+                          </div>
+                          {item.product.stockState === "low_stock" ? (
+                            <p className="mt-2 text-[0.8rem] font-bold text-[#A66A00]">
+                              Low stock. Quantities are capped to what is still available.
+                            </p>
+                          ) : null}
+                          {item.product.stockState === "out_of_stock" ? (
+                            <p className="mt-2 text-[0.8rem] font-bold text-[#A33A3A]">
+                              This item is currently out of stock.
+                            </p>
+                          ) : null}
                           <div className="mt-3 flex items-center justify-between">
-                            <div className="inline-flex items-center gap-4 rounded-full border border-[#EEF2EC] px-3 py-1.5 text-[0.84rem] text-[var(--freshco-text-soft)]">
-                              <span aria-hidden="true">-</span>
-                              <span className="min-w-4 text-center font-bold text-[var(--freshco-text)]">
+                            <div className="inline-flex items-center rounded-full border border-[#EEF2EC] px-1 py-1.5 text-[0.84rem] text-[var(--freshco-text-soft)]">
+                              <button
+                                className="h-8 w-8 rounded-full text-[var(--freshco-text)] disabled:opacity-40"
+                                disabled={item.quantity <= 1}
+                                onClick={() => void setCartItem(item.product.id, item.quantity - 1)}
+                                type="button"
+                              >
+                                -
+                              </button>
+                              <span className="min-w-6 text-center font-bold text-[var(--freshco-text)]">
                                 {item.quantity}
                               </span>
-                              <span aria-hidden="true">+</span>
+                              <button
+                                className="h-8 w-8 rounded-full text-[var(--freshco-text)] disabled:opacity-40"
+                                disabled={
+                                  item.product.stockState === "out_of_stock" ||
+                                  item.quantity >= item.product.stockQuantity
+                                }
+                                onClick={() => void setCartItem(item.product.id, item.quantity + 1)}
+                                type="button"
+                              >
+                                +
+                              </button>
                             </div>
                             <strong className="text-[1.02rem] font-extrabold tracking-[-0.03em] text-[var(--freshco-text)]">
                               ${item.lineTotal.toFixed(2)}
                             </strong>
                           </div>
-                          <div className="mt-3 flex items-center justify-end gap-3 text-[0.8rem] text-[#97A6A1]">
-                            <span>Move to favourites</span>
-                            <span className="text-[#D4DDD1]">|</span>
-                            <span>Remove</span>
+                          <div className="mt-3 flex items-center justify-end gap-3 text-[0.8rem]">
+                            <button
+                              className="font-bold text-[#A33A3A]"
+                              onClick={() => void removeCartItem(item.product.id)}
+                              type="button"
+                            >
+                              Remove
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -192,7 +241,7 @@ export function CartCountBadge() {
                     </strong>
                   </div>
                   <div className="flex items-center justify-between border-t border-[#EEF2EC] pt-3 text-[1.08rem]">
-                    <span>Total</span>
+                    <span>Estimated total</span>
                     <strong className="text-[var(--freshco-text)]">
                       ${loaded ? preview.total.toFixed(2) : "0.00"}
                     </strong>

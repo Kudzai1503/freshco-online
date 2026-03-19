@@ -28,7 +28,7 @@ const storageKeys = {
 export const storefrontStorageEvent = "freshco:storefront-updated";
 
 function isBrowser() {
-  return typeof window !== "undefined";
+  return typeof globalThis.localStorage !== "undefined";
 }
 
 function readJson<T>(key: string, fallback: T): T {
@@ -36,7 +36,7 @@ function readJson<T>(key: string, fallback: T): T {
     return fallback;
   }
 
-  const raw = window.localStorage.getItem(key);
+  const raw = globalThis.localStorage.getItem(key);
   if (!raw) {
     return fallback;
   }
@@ -53,8 +53,10 @@ function writeJson<T>(key: string, value: T) {
     return;
   }
 
-  window.localStorage.setItem(key, JSON.stringify(value));
-  window.dispatchEvent(new CustomEvent(storefrontStorageEvent, { detail: { key } }));
+  globalThis.localStorage.setItem(key, JSON.stringify(value));
+  globalThis.dispatchEvent(
+    new globalThis.CustomEvent(storefrontStorageEvent, { detail: { key } }),
+  );
 }
 
 function deriveStockState(quantity: number): StockState {
@@ -73,6 +75,7 @@ function normalizeCheckoutDraft(draft: Partial<CheckoutDraft> | null | undefined
   return {
     ...defaultCheckoutDraft,
     ...draft,
+    ageConfirmation: draft?.ageConfirmation ?? defaultCheckoutDraft.ageConfirmation,
     pickupLocation: draft?.pickupLocation || pickupLocationLabel,
   };
 }
@@ -83,7 +86,7 @@ function normalizeOrder(order: Order): Order {
 
   return {
     ...order,
-    status: order.status ?? "confirmed",
+    status: order.status ?? "placed",
     deliveryAddress:
       order.deliveryAddress ||
       (fulfillmentMethod === "pickup"
@@ -92,6 +95,12 @@ function normalizeOrder(order: Order): Order {
     fulfillmentMethod,
     fulfillmentLabel: order.fulfillmentLabel ?? fulfillment.label,
     etaLabel: order.etaLabel ?? fulfillment.etaLabel,
+    paymentMethod: order.paymentMethod ?? defaultCheckoutDraft.paymentMethod,
+    deliverySlot: order.deliverySlot ?? defaultCheckoutDraft.deliverySlot,
+    substitutionPreference:
+      order.substitutionPreference ?? defaultCheckoutDraft.substitutionPreference,
+    orderNotes: order.orderNotes ?? "",
+    ageConfirmation: order.ageConfirmation ?? false,
     pickupLocation:
       fulfillmentMethod === "pickup"
         ? order.pickupLocation || pickupLocationLabel

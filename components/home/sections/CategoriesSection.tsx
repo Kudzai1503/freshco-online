@@ -8,8 +8,8 @@ export function CategoriesSection() {
     <section className="bg-white px-4 py-7 sm:px-6 lg:px-8 xl:px-10 2xl:px-14" id="categories">
       <div className="rounded-[38px] border border-[#173534]/10 bg-[#F9FCF8] px-5 py-8 sm:px-7 lg:px-10 lg:py-10">
         <SectionHeading
-          copy="The page stays bright and screen-filling, while these category cards create strong scan paths instead of leaving blank space around isolated modules."
-          eyebrow="CURATED CATEGORIES"
+          copy="Jump straight to the part of the shop that matches tonight's dinner, weekly produce, or pantry restock."
+          eyebrow="SHOP BY CATEGORY"
           title="Browse by what your home actually needs."
         />
         <div className="mt-8 grid gap-4 md:grid-cols-2 2xl:grid-cols-4">

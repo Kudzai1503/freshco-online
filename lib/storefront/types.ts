@@ -11,6 +11,7 @@ export type CategorySlug =
   | "household";
 
 export type DepartmentSlug = CategorySlug;
+export type DepartmentFilter = DepartmentSlug | "bakery";
 
 export type StockState = "in_stock" | "low_stock" | "out_of_stock";
 
@@ -19,20 +20,26 @@ export type FulfillmentMethod =
   | "express_delivery"
   | "pickup";
 
+export type DeliverySlot =
+  | "today-9-12"
+  | "today-12-3"
+  | "today-4-7"
+  | "tomorrow-9-12";
+
+export type SubstitutionPreference =
+  | "best_match"
+  | "contact_me"
+  | "no_substitutions";
+
 export type OrderStatus =
+  | "placed"
   | "confirmed"
+  | "preparing"
   | "packed"
   | "out_for_delivery"
   | "delivered"
   | "ready_for_pickup"
   | "picked_up";
-
-export type SortOption =
-  | "featured"
-  | "price-asc"
-  | "price-desc"
-  | "name-asc"
-  | "stock-desc";
 
 export type ProductAttributeValue = string | number | boolean;
 
@@ -85,16 +92,17 @@ export type Product = Readonly<{
 export type SearchFilters = Readonly<{
   query?: string;
   category?: CategorySlug | "all";
-  department?: DepartmentSlug | "all";
-  stock?: "all" | StockState;
-  sort?: SortOption;
+  department?: DepartmentFilter | "all";
+  page?: number;
+  pageSize?: number;
 }>;
-
-export type ProductQuery = SearchFilters;
 
 export type ProductSearchResult = Readonly<{
   products: Product[];
   total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }>;
 
 export type CartItem = Readonly<{
@@ -116,8 +124,12 @@ export type CheckoutDraft = Readonly<{
   addressLine2: string;
   city: string;
   deliveryNotes: string;
+  orderNotes: string;
   paymentMethod: "card" | "cash";
   fulfillmentMethod: FulfillmentMethod;
+  deliverySlot: DeliverySlot;
+  substitutionPreference: SubstitutionPreference;
+  ageConfirmation: boolean;
   pickupLocation: string;
 }>;
 
@@ -160,6 +172,11 @@ export type Order = Readonly<{
   fulfillmentMethod: FulfillmentMethod;
   fulfillmentLabel: string;
   etaLabel: string;
+  paymentMethod: "card" | "cash";
+  deliverySlot: DeliverySlot;
+  substitutionPreference: SubstitutionPreference;
+  orderNotes: string;
+  ageConfirmation: boolean;
   pickupLocation?: string;
   trackingTimeline: OrderTrackingEvent[];
 }>;
@@ -187,4 +204,11 @@ export type CheckoutPreview = Readonly<{
   fulfillmentMethod: FulfillmentMethod;
   fulfillmentLabel: string;
   etaLabel: string;
+}>;
+
+export type ReorderResult = Readonly<{
+  cart: Cart;
+  addedItems: number;
+  limitedItems: string[];
+  unavailableItems: string[];
 }>;

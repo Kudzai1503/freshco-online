@@ -17,6 +17,7 @@ export function ProductDetailActions({ product }: Readonly<{ product: Product }>
     return live
       ? {
           ...product,
+          stockQty: live.quantity,
           stockQuantity: live.quantity,
           stockState: live.state,
         }
@@ -24,9 +25,16 @@ export function ProductDetailActions({ product }: Readonly<{ product: Product }>
   }, [product, stockSnapshot]);
 
   const inCart = cart.items.find((item) => item.productId === product.id)?.quantity ?? 0;
-  const maxQuantity = Math.max(1, liveProduct.stockQuantity - inCart);
+  const availableQuantity = Math.max(0, liveProduct.stockQuantity - inCart);
+  const maxQuantity = Math.max(1, availableQuantity);
+  const isOutOfStock = liveProduct.stockState === "out_of_stock" || availableQuantity === 0;
+  const isLowStock = liveProduct.stockState === "low_stock" || availableQuantity <= 5;
 
   async function handleAdd() {
+    if (isOutOfStock) {
+      return;
+    }
+
     setSubmitting(true);
     await setCartItem(product.id, inCart + quantity);
     setSubmitting(false);
@@ -40,20 +48,29 @@ export function ProductDetailActions({ product }: Readonly<{ product: Product }>
           <AgeRestrictedNotice />
         </div>
       ) : null}
+      {isLowStock && !isOutOfStock ? (
+        <p className="mt-4 text-[0.88rem] font-bold text-[#A66A00]">
+          Limited stock available. You can add up to {availableQuantity} more
+          {availableQuantity === 1 ? " unit" : " units"} right now.
+        </p>
+      ) : null}
       <div className="mt-5 flex items-center gap-3">
         <label className="text-[0.82rem] font-bold uppercase tracking-[0.14em] text-[var(--freshco-text-soft)]" htmlFor="qty">
           Quantity
         </label>
         <div className="inline-flex items-center rounded-full border border-[var(--freshco-border)] bg-white">
           <button
-            className="h-10 w-10 text-[var(--freshco-text)]"
+            aria-label="Decrease quantity"
+            className="h-10 w-10 text-[var(--freshco-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--freshco-brand)] focus-visible:ring-inset"
             onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+            disabled={isOutOfStock}
             type="button"
           >
             -
           </button>
           <input
-            className="h-10 w-12 bg-transparent text-center text-[var(--freshco-text)] outline-none"
+            className="h-10 w-12 bg-transparent text-center text-[var(--freshco-text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--freshco-brand)]"
+            disabled={isOutOfStock}
             id="qty"
             max={maxQuantity}
             min={1}
@@ -62,8 +79,10 @@ export function ProductDetailActions({ product }: Readonly<{ product: Product }>
             value={quantity}
           />
           <button
-            className="h-10 w-10 text-[var(--freshco-text)]"
+            aria-label="Increase quantity"
+            className="h-10 w-10 text-[var(--freshco-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--freshco-brand)] focus-visible:ring-inset"
             onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
+            disabled={isOutOfStock}
             type="button"
           >
             +
@@ -71,16 +90,18 @@ export function ProductDetailActions({ product }: Readonly<{ product: Product }>
         </div>
       </div>
       <button
-        className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-[var(--freshco-brand)] px-5 text-[0.82rem] font-extrabold uppercase tracking-[0.14em] text-white transition duration-200 hover:-translate-y-0.5 hover:brightness-[1.03] disabled:cursor-not-allowed disabled:bg-[#B9DDB7]"
-        disabled={liveProduct.stockState === "out_of_stock" || submitting}
+        className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-[var(--freshco-brand)] px-5 text-[0.82rem] font-extrabold uppercase tracking-[0.14em] text-white transition duration-200 hover:-translate-y-0.5 hover:brightness-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--freshco-brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#B9DDB7]"
+        disabled={isOutOfStock || submitting}
         onClick={() => void handleAdd()}
         type="button"
       >
-        {liveProduct.stockState === "out_of_stock"
+        {isOutOfStock
           ? "Out of stock"
           : submitting
             ? "Adding..."
-            : `Add ${quantity} to cart`}
+            : isLowStock
+              ? `Add ${quantity} before it sells out`
+              : `Add ${quantity} to cart`}
       </button>
     </div>
   );

@@ -64,7 +64,7 @@ export function AccountOverviewClient({ sessionUser }: AccountOverviewClientProp
             {orders.length}
           </p>
           <p className="text-[0.98rem] text-[var(--freshco-text-soft)]">
-            stored in this browser demo
+            in your order history
           </p>
           <Link className="mt-4 inline-flex text-[0.9rem] font-bold text-[var(--freshco-brand-dark)]" href="/account/orders">
             View order history

@@ -8,10 +8,10 @@ export function StorySection() {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[58%] bg-[linear-gradient(180deg,rgba(137,210,120,0.45)_0%,rgba(63,152,83,0)_100%)]" />
         <div className="relative z-10 grid gap-8 xl:grid-cols-[1.15fr_0.85fr] xl:items-center">
           <SectionHeading
-            copy="The final promo band stays strictly in the green-and-white brand family, giving the page a confident finish without drifting back toward off-white or unrelated accent colors."
-            eyebrow="FRESHCO STORY"
+            copy="FreshCo keeps grocery shopping focused on good produce, pantry reliability, and an easier path from browsing to checkout."
+            eyebrow="FRESHCO"
             light
-            title="Fresh produce, thoughtful pantry picks, and a homepage that feels alive."
+            title="Fresh produce, useful pantry picks, and a simpler way to shop."
           />
           <div className="relative h-[240px] rounded-[30px] bg-white/12">
             <AssetImage
@@ -21,7 +21,7 @@ export function StorySection() {
               fallbackLabel="Brand collage"
               fill
               sizes="(max-width: 1280px) 100vw, 520px"
-              src=""
+              src="/assets/bread.png"
               wrapperClassName="absolute inset-0"
             />
           </div>

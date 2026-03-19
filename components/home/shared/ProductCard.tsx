@@ -1,13 +1,17 @@
+import Link from "next/link";
+
 import { AssetImage } from "@/components/home/shared/AssetImage";
 import type { ProductCardData } from "@/components/home/data/content";
+
+type ProductCardProps = Readonly<{
+  product: ProductCardData;
+  large?: boolean;
+}>;
 
 export function ProductCard({
   product,
   large = false,
-}: {
-  product: ProductCardData;
-  large?: boolean;
-}) {
+}: ProductCardProps) {
   return (
     <article
       className="group rounded-[30px] border border-[var(--freshco-border)] bg-white p-4 transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(23,53,52,0.08)] sm:p-5"
@@ -42,15 +46,15 @@ export function ProductCard({
             {product.title}
           </h3>
         </div>
-        <button
+        <Link
           aria-label={`Add ${product.title} to cart`}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--freshco-text)] text-white transition duration-200 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--freshco-brand)] focus-visible:ring-offset-2"
-          type="button"
+          href="/shop"
         >
           <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 20 20">
             <path d="M10 4V16M4 10H16" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
           </svg>
-        </button>
+        </Link>
       </div>
       <div className="mt-4 flex items-center justify-between">
         <p className="text-[1.22rem] font-extrabold tracking-[-0.03em] text-[var(--freshco-text)]">

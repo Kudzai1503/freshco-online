@@ -11,7 +11,7 @@ export default async function CheckoutPage() {
           Checkout
         </p>
         <h1 className="mt-3 text-[2.8rem] font-extrabold leading-[0.94] tracking-[-0.06em] text-[var(--freshco-text)]">
-          Complete the mock FreshCo shopper journey.
+          Complete your FreshCo order.
         </h1>
       </section>
       <CheckoutClient />
